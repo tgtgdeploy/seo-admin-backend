@@ -479,17 +479,34 @@ async function initializeSystem() {
     // 3. 创建关键词
     console.log('\n🔑 配置关键词追踪...');
     for (const kw of keywords) {
+      // 从targetUrl提取域名
+      const url = new URL(kw.targetUrl);
+      const domain = url.hostname;
+
+      // 查找对应的网站
+      const website = await prisma.website.findUnique({
+        where: { domain }
+      });
+
+      if (!website) {
+        console.log(`   ⚠️  网站 ${domain} 不存在，跳过关键词 "${kw.keyword}"`);
+        continue;
+      }
+
       const existing = await prisma.keyword.findFirst({
-        where: { keyword: kw.keyword }
+        where: { keyword: kw.keyword, websiteId: website.id }
       });
 
       if (existing) {
         console.log(`   ✓ 关键词 "${kw.keyword}" 已存在`);
       } else {
         await prisma.keyword.create({
-          data: kw
+          data: {
+            keyword: kw.keyword,
+            websiteId: website.id
+          }
         });
-        console.log(`   ✓ 添加关键词: ${kw.keyword}`);
+        console.log(`   ✓ 添加关键词: ${kw.keyword} → ${domain}`);
       }
     }
 
