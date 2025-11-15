@@ -14,11 +14,12 @@ module.exports = {
       name: 'seo-admin',
       script: 'node_modules/.bin/next',
       args: 'start --port 3100',
-      cwd: '/var/www/seo-admin',
+      cwd: process.cwd(), // Use current working directory
       instances: 1, // Single instance (Next.js handles concurrency)
       exec_mode: 'fork', // Use 'cluster' for API-heavy workloads
 
-      // Environment
+      // Environment - Load from .env.local file
+      env_file: '.env.local',
       env: {
         NODE_ENV: 'production',
         PORT: 3100,

@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "dev": "cd packages/database && npm run db:generate && cd ../.. && next dev --port 3100",
-    "build": "cd packages/database && npm run db:generate && cd ../.. && next build",
+    "build": "cd packages/database && npm run db:generate && cd ../.. && next build && node scripts/copy-prisma-engines.js",
     "start": "next start --port 3100",
     "lint": "next lint",
     "db:generate": "cd packages/database && npm run db:generate",
