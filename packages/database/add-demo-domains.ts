@@ -67,15 +67,17 @@ async function main() {
         data: {
           domain: domainData.domain,
           isPrimary: domainData.isPrimary,
-          primaryTag: domainData.primaryTag,
+          primaryTags: [domainData.primaryTag],
           secondaryTags: domainData.secondaryTags,
-          websiteId: tgWebsite.id
+          websiteId: tgWebsite.id,
+          siteName: `${domainData.primaryTag} - TG中文`,
+          siteDescription: `关于${domainData.primaryTag}的专业内容`
         }
       })
 
       console.log(`✅ 已添加: ${created.domain}`)
       console.log(`   ${created.isPrimary ? '🔵 主域名' : '⚪ 副域名'}`)
-      console.log(`   主标签: ${created.primaryTag}`)
+      console.log(`   主标签: ${created.primaryTags.join(', ')}`)
       console.log(`   副标签: ${created.secondaryTags.join(', ')}\n`)
     } catch (error) {
       console.error(`❌ 添加失败: ${domainData.domain}`, error)
