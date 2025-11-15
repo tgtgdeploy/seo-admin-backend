@@ -70,7 +70,7 @@ async function fetchSpiderByDomain(timeRange: string = '24h'): Promise<SpiderByD
 export default function SpiderPage() {
   const t = useTranslations()
   const searchParams = useSearchParams()
-  const domainParam = searchParams?.get('domain')
+  const domainParam = searchParams?.get('domain') || null
 
   const [timeRange, setTimeRange] = useState('24h')
   const [view, setView] = useState<'overview' | 'by-domain'>('overview')
@@ -378,7 +378,7 @@ export default function SpiderPage() {
 
           {/* Domain Cards */}
           <div className="space-y-6">
-            {domainData.domains
+            {(domainData.domains || [])
               .filter((domain) => !domainParam || domain.domain === domainParam)
               .map((domain) => (
               <div

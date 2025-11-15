@@ -52,11 +52,10 @@ async function fetchDomainAliases(websiteId: string) {
 export default function KeywordsPage() {
   const t = useTranslations()
   const searchParams = useSearchParams()
-  const domainParam = searchParams?.get('domain')
+  const domainParam = searchParams?.get('domain') || null
 
   const [selectedWebsite, setSelectedWebsite] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('')
-  const [isInitialized, setIsInitialized] = useState(false)
 
   const { data: websites } = useQuery({
     queryKey: ['websites'],
@@ -68,26 +67,6 @@ export default function KeywordsPage() {
     queryFn: () => fetchDomainAliases(selectedWebsite),
     enabled: !!selectedWebsite,
   })
-
-  // Auto-select website and domain based on URL parameter
-  useEffect(() => {
-    if (domainParam && websites && !isInitialized) {
-      // Fetch all domain aliases to find which website this domain belongs to
-      async function findDomain() {
-        for (const website of websites) {
-          const aliases = await fetchDomainAliases(website.id)
-          const matchingAlias = aliases.find((a: any) => a.domain === domainParam)
-          if (matchingAlias) {
-            setSelectedWebsite(website.id)
-            setSelectedDomain(matchingAlias.id)
-            setIsInitialized(true)
-            break
-          }
-        }
-      }
-      findDomain()
-    }
-  }, [domainParam, websites, isInitialized])
 
   const { data: keywords, isLoading } = useQuery({
     queryKey: ['keywords', selectedWebsite, selectedDomain],
