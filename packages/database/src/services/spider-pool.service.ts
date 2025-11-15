@@ -3,7 +3,7 @@
  * 动态管理蜘蛛池页面，从数据库读取配置和内容源
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, SpiderPageStatus } from '@prisma/client'
 import * as fs from 'fs'
 import * as cheerio from 'cheerio'
 
@@ -238,7 +238,7 @@ export async function generateSpiderPoolPages(
       keywords: randomKeywords,
       content: htmlContent,
       theme,
-      status: 'ACTIVE',
+      status: SpiderPageStatus.ACTIVE,
       published: true,
       generatedBy: 'auto',
       sourceContent: ['website-1', 'website-2', 'website-tg'],

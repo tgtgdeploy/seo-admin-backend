@@ -1,0 +1,370 @@
+# ==========================================
+# 蜘蛛池Nginx配置文件 - 宝塔面板使用
+# ==========================================
+# 说明：将以下配置复制到宝塔面板对应站点的Nginx配置中
+# Admin API地址：https://admin.telegram1688.com
+# ==========================================
+
+# ========== VPS 1 (95.111.231.110) ==========
+
+# ------  1. autopushnetwork.xyz ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name autopushnetwork.xyz www.autopushnetwork.xyz;
+
+    # SSL证书（宝塔自动配置）
+    # ssl_certificate /www/server/panel/vhost/cert/autopushnetwork.xyz/fullchain.pem;
+    # ssl_certificate_key /www/server/panel/vhost/cert/autopushnetwork.xyz/privkey.pem;
+
+    # 日志
+    access_log /www/wwwlogs/autopushnetwork.xyz-access.log;
+    error_log /www/wwwlogs/autopushnetwork.xyz-error.log;
+
+    # 反向代理到Admin API
+    location / {
+        # 提取请求路径
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        # 代理到admin backend
+        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+
+        # 缓存配置
+        proxy_cache_valid 200 30m;
+        proxy_cache_bypass $http_pragma $http_authorization;
+    }
+
+    # sitemap.xml
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+        proxy_cache_valid 200 1h;
+    }
+
+    # robots.txt
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+        proxy_cache_valid 200 1d;
+    }
+}
+
+# ------  2. contentpoolzone.site ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name contentpoolzone.site www.contentpoolzone.site;
+
+    access_log /www/wwwlogs/contentpoolzone.site-access.log;
+    error_log /www/wwwlogs/contentpoolzone.site-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/contentpoolzone.site?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/contentpoolzone.site?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/contentpoolzone.site?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+# ------  3. crawlboostnet.xyz ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name crawlboostnet.xyz www.crawlboostnet.xyz;
+
+    access_log /www/wwwlogs/crawlboostnet.xyz-access.log;
+    error_log /www/wwwlogs/crawlboostnet.xyz-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/crawlboostnet.xyz?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/crawlboostnet.xyz?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/crawlboostnet.xyz?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+
+# ========== VPS 2 (75.119.154.120) ==========
+
+# ------  4. crawlenginepro.xyz ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name crawlenginepro.xyz www.crawlenginepro.xyz;
+
+    access_log /www/wwwlogs/crawlenginepro.xyz-access.log;
+    error_log /www/wwwlogs/crawlenginepro.xyz-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/crawlenginepro.xyz?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/crawlenginepro.xyz?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/crawlenginepro.xyz?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+# ------  5. linkpushmatrix.site ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name linkpushmatrix.site www.linkpushmatrix.site;
+
+    access_log /www/wwwlogs/linkpushmatrix.site-access.log;
+    error_log /www/wwwlogs/linkpushmatrix.site-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/linkpushmatrix.site?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/linkpushmatrix.site?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/linkpushmatrix.site?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+# ------  6. rankspiderchain.xyz ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name rankspiderchain.xyz www.rankspiderchain.xyz;
+
+    access_log /www/wwwlogs/rankspiderchain.xyz-access.log;
+    error_log /www/wwwlogs/rankspiderchain.xyz-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/rankspiderchain.xyz?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/rankspiderchain.xyz?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/rankspiderchain.xyz?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+
+# ========== VPS 3 (37.60.254.52) ==========
+
+# ------  7. seohubnetwork.xyz ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name seohubnetwork.xyz www.seohubnetwork.xyz;
+
+    access_log /www/wwwlogs/seohubnetwork.xyz-access.log;
+    error_log /www/wwwlogs/seohubnetwork.xyz-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/seohubnetwork.xyz?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/seohubnetwork.xyz?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/seohubnetwork.xyz?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+# ------  8. spidertrackzone.xyz ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name spidertrackzone.xyz www.spidertrackzone.xyz;
+
+    access_log /www/wwwlogs/spidertrackzone.xyz-access.log;
+    error_log /www/wwwlogs/spidertrackzone.xyz-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/spidertrackzone.xyz?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/spidertrackzone.xyz?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/spidertrackzone.xyz?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+# ------  9. trafficboostflow.site ------
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name trafficboostflow.site www.trafficboostflow.site;
+
+    access_log /www/wwwlogs/trafficboostflow.site-access.log;
+    error_log /www/wwwlogs/trafficboostflow.site-error.log;
+
+    location / {
+        set $request_slug $uri;
+        if ($request_slug = /) {
+            set $request_slug /index;
+        }
+
+        proxy_pass https://admin.telegram1688.com/api/p/trafficboostflow.site?slug=$request_slug;
+        proxy_set_header Host admin.telegram1688.com;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Original-Host $host;
+        proxy_cache_valid 200 30m;
+    }
+
+    location = /sitemap.xml {
+        proxy_pass https://admin.telegram1688.com/api/p/trafficboostflow.site?type=sitemap;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type application/xml;
+    }
+
+    location = /robots.txt {
+        proxy_pass https://admin.telegram1688.com/api/p/trafficboostflow.site?type=robots;
+        proxy_set_header Host admin.telegram1688.com;
+        add_header Content-Type text/plain;
+    }
+}
+
+# ==========================================
+# 配置完成后记得：
+# 1. 在宝塔面板测试配置：nginx -t
+# 2. 重载Nginx：nginx -s reload
+# 3. 为每个域名申请SSL证书
+# 4. 配置DNS解析
+# ==========================================
