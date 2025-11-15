@@ -2,9 +2,6 @@
 const nextConfig = {
   transpilePackages: ['@repo/database', '@repo/seo-tools'],
 
-  // Enable standalone output for Docker deployment
-  output: 'standalone',
-
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3100'],
