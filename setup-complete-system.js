@@ -20,7 +20,7 @@ const websites = [
     domain: 'telegramtghub.com',
     seoTitle: 'Telegram官网 - TG中文版下载 | 电报最新版本',
     seoDescription: 'Telegram官方网站提供最新TG中文版下载，支持iOS、Android、Windows、Mac等全平台。了解Telegram最新功能和使用技巧。',
-    seoKeywords: 'Telegram,TG,电报,Telegram中文版,TG下载,电报下载',
+    seoKeywords: ['Telegram', 'TG', '电报', 'Telegram中文版', 'TG下载', '电报下载'],
     aliases: ['www.telegramtghub.com']
   },
   {
@@ -28,7 +28,7 @@ const websites = [
     domain: 'telegramupdatecenter.com',
     seoTitle: 'Telegram更新中心 - 最新版本下载与功能介绍',
     seoDescription: 'Telegram官方更新中心，第一时间发布TG最新版本、新功能介绍和使用教程。跟踪Telegram所有重要更新。',
-    seoKeywords: 'Telegram更新,TG新版本,Telegram功能,电报更新',
+    seoKeywords: ['Telegram更新', 'TG新版本', 'Telegram功能', '电报更新'],
     aliases: ['www.telegramupdatecenter.com']
   },
   {
@@ -36,7 +36,7 @@ const websites = [
     domain: 'telegramtrendguide.com',
     seoTitle: 'Telegram趋势指南 - 热门频道与使用技巧',
     seoDescription: 'Telegram趋势分析和使用指南，发现热门TG频道、群组，掌握高级使用技巧，提升Telegram体验。',
-    seoKeywords: 'Telegram频道,TG群组,Telegram技巧,电报使用',
+    seoKeywords: ['Telegram频道', 'TG群组', 'Telegram技巧', '电报使用'],
     aliases: ['www.telegramtrendguide.com']
   }
 ];
@@ -91,7 +91,7 @@ A: Settings → Language → 简体中文
     featuredImage: '/images/telegram-download.jpg',
     seoTitle: 'Telegram中文版下载 - iOS/Android/PC全平台安装指南',
     seoDescription: 'Telegram官方中文版下载教程，支持iPhone、Android手机、Windows电脑、Mac等全平台。安全、快速、免费的即时通讯工具。',
-    seoKeywords: 'Telegram下载,TG下载,电报下载,Telegram中文版,TG中文版'
+    seoKeywords: ['Telegram下载', 'TG下载', '电报下载', 'Telegram中文版', 'TG中文版']
   },
   {
     domain: 'telegramtghub.com',
@@ -417,32 +417,47 @@ async function initializeSystem() {
 
     // 2. 创建示例文章
     console.log('\n📄 创建示例文章...');
-    for (const post of posts) {
-      const website = await prisma.website.findUnique({
-        where: { domain: post.domain }
-      });
 
-      if (!website) {
-        console.log(`   ⚠️  网站 ${post.domain} 不存在，跳过文章`);
-        continue;
-      }
-
-      const existingPost = await prisma.post.findFirst({
-        where: { slug: post.slug, websiteId: website.id }
-      });
-
-      if (existingPost) {
-        console.log(`   ✓ 文章 "${post.title}" 已存在`);
-      } else {
-        await prisma.post.create({
-          data: {
-            ...post,
-            websiteId: website.id,
-            status: 'PUBLISHED',
-            publishedAt: new Date()
-          }
+    // 获取第一个用户作为作者
+    const author = await prisma.user.findFirst();
+    if (!author) {
+      console.log('   ⚠️  未找到用户，跳过文章创建。请先运行 node create_admin.js 创建管理员账号');
+    } else {
+      for (const post of posts) {
+        const website = await prisma.website.findUnique({
+          where: { domain: post.domain }
         });
-        console.log(`   ✓ 创建文章: ${post.title}`);
+
+        if (!website) {
+          console.log(`   ⚠️  网站 ${post.domain} 不存在，跳过文章`);
+          continue;
+        }
+
+        const existingPost = await prisma.post.findFirst({
+          where: { slug: post.slug, websiteId: website.id }
+        });
+
+        if (existingPost) {
+          console.log(`   ✓ 文章 "${post.title}" 已存在`);
+        } else {
+          // 映射字段: seo* -> meta*
+          const { seoTitle, seoDescription, seoKeywords, domain, featuredImage, ...postData } = post;
+
+          await prisma.post.create({
+            data: {
+              ...postData,
+              metaTitle: seoTitle,
+              metaDescription: seoDescription,
+              metaKeywords: seoKeywords || [],
+              coverImage: featuredImage,
+              websiteId: website.id,
+              authorId: author.id,
+              status: 'PUBLISHED',
+              publishedAt: new Date()
+            }
+          });
+          console.log(`   ✓ 创建文章: ${post.title}`);
+        }
       }
     }
 
