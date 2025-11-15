@@ -408,19 +408,24 @@ async function initializeSystem() {
       }
 
       // 创建域名别名
-      for (const alias of aliases) {
+      for (const aliasDomain of aliases) {
         const existingAlias = await prisma.domainAlias.findFirst({
-          where: { alias, websiteId: website.id }
+          where: { domain: aliasDomain, websiteId: website.id }
         });
 
         if (!existingAlias) {
           await prisma.domainAlias.create({
             data: {
-              alias,
-              websiteId: website.id
+              domain: aliasDomain,
+              siteName: site.name,
+              siteDescription: site.seoDescription || `${site.name}的域名别名`,
+              websiteId: website.id,
+              primaryTags: ['telegram', 'tg', '电报'],
+              secondaryTags: ['下载', '中文版'],
+              status: 'ACTIVE'
             }
           });
-          console.log(`     - 添加别名: ${alias}`);
+          console.log(`     - 添加别名: ${aliasDomain}`);
         }
       }
     }
