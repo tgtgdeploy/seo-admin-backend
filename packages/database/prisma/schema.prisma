@@ -1,0 +1,360 @@
+// Prisma Schema for SEO Websites Monorepo
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 网站配置
+model Website {
+  id          String        @id @default(cuid())
+  name        String
+  domain      String        @unique
+  description String?
+  logo        String?
+  favicon     String?
+  status      WebsiteStatus @default(ACTIVE)
+
+  // SEO配置
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]
+
+  // 技术配置
+  gaId          String? // Google Analytics ID
+  gscId         String? // Google Search Console ID
+  baiduTongjiId String? // 百度统计ID
+
+  // API 配置
+  apiKey     String?  @unique // API key for public access
+  apiEnabled Boolean  @default(true) // Enable/disable API access
+  isActive   Boolean  @default(true) // 是否激活（用于过滤）
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  posts         Post[]
+  keywords      Keyword[]
+  sitemaps      Sitemap[]
+  spiderLogs    SpiderLog[]
+  domainAliases DomainAlias[]
+
+  @@map("websites")
+}
+
+enum WebsiteStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+// 域名别名管理（蜘蛛池多域名）
+model DomainAlias {
+  id     String @id @default(cuid())
+  domain String @unique // 域名，如 tg-download-cn.com
+
+  // SEO配置
+  siteName        String // 站点名称
+  siteDescription String // 站点描述
+
+  // 标签配置（用于文章过滤）
+  primaryTags   String[] // 主要关注的标签，权重高
+  secondaryTags String[] // 次要标签，权重低
+
+  // 状态
+  status    DomainStatus @default(ACTIVE)
+  isPrimary Boolean      @default(false) // 是否为主域名
+
+  // 流量统计
+  visits    Int       @default(0) // 访问次数
+  lastVisit DateTime? // 最后访问时间
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  websiteId String
+  website   Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  // 反向关联
+  sitemaps        Sitemap[]
+  spiderLogs      SpiderLog[]
+  keywordRankings KeywordRanking[]
+
+  @@index([websiteId, status])
+  @@index([domain])
+  @@map("domain_aliases")
+}
+
+enum DomainStatus {
+  ACTIVE // 激活
+  INACTIVE // 停用
+  PENDING // 待配置DNS
+}
+
+// 博文管理
+model Post {
+  id         String  @id @default(cuid())
+  title      String
+  slug       String
+  content    String  @db.Text
+  excerpt    String?
+  coverImage String?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String[]
+
+  // 状态
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  // 分类和标签
+  category String?
+  tags     String[]
+
+  // 同步状态
+  syncedWebsites String[] // 已同步的网站ID列表
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  websiteId String
+  website   Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User    @relation(fields: [authorId], references: [id])
+
+  @@unique([websiteId, slug])
+  @@index([status, publishedAt])
+  @@map("posts")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+// 关键词管理
+model Keyword {
+  id         String @id @default(cuid())
+  keyword    String
+  volume     Int? // 搜索量
+  difficulty Int? // 难度评分 0-100
+  cpc        Float? // 每次点击费用
+
+  // 排名追踪
+  rankings KeywordRanking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  websiteId String
+  website   Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, keyword])
+  @@map("keywords")
+}
+
+// 关键词排名历史
+model KeywordRanking {
+  id           String @id @default(cuid())
+  position     Int // 排名位置
+  url          String // 排名URL
+  searchEngine String @default("google") // google, baidu, bing
+
+  createdAt DateTime @default(now())
+
+  // 关联
+  keywordId String
+  keyword   Keyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+
+  // 多域名支持：追踪哪个域名的URL在排名
+  domainAliasId String?
+  domainAlias   DomainAlias? @relation(fields: [domainAliasId], references: [id], onDelete: SetNull)
+
+  @@index([keywordId, createdAt])
+  @@index([keywordId, domainAliasId, createdAt])
+  @@map("keyword_rankings")
+}
+
+// Sitemap管理
+model Sitemap {
+  id   String      @id @default(cuid())
+  url  String
+  type SitemapType @default(POSTS)
+  urls Int         @default(0) // URL数量
+
+  // 提交状态
+  submitted    Boolean   @default(false)
+  submittedAt  DateTime?
+  lastModified DateTime  @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  websiteId String
+  website   Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  // 域名别名关联（可选，为null表示主域名）
+  domainAliasId String?
+  domainAlias   DomainAlias? @relation(fields: [domainAliasId], references: [id], onDelete: SetNull)
+
+  @@index([websiteId, domainAliasId])
+  @@map("sitemaps")
+}
+
+enum SitemapType {
+  POSTS
+  PAGES
+  CATEGORIES
+  TAGS
+}
+
+// 蜘蛛池日志
+model SpiderLog {
+  id         String  @id @default(cuid())
+  ip         String
+  userAgent  String
+  url        String
+  method     String  @default("GET")
+  statusCode Int
+  referer    String?
+
+  // 搜索引擎识别
+  bot String? // googlebot, bingbot, baiduspider
+
+  createdAt DateTime @default(now())
+
+  // 关联
+  websiteId String
+  website   Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  // 域名别名关联（追踪访问的具体域名）
+  domainAliasId String?
+  domainAlias   DomainAlias? @relation(fields: [domainAliasId], references: [id], onDelete: SetNull)
+
+  @@index([websiteId, bot, createdAt])
+  @@index([domainAliasId, bot, createdAt])
+  @@map("spider_logs")
+}
+
+// 外链管理
+model Backlink {
+  id         String  @id @default(cuid())
+  sourceUrl  String // 外链来源URL
+  targetUrl  String // 目标URL
+  anchorText String? // 锚文本
+  doFollow   Boolean @default(true)
+
+  // 状态
+  status      BacklinkStatus @default(PENDING)
+  indexed     Boolean        @default(false) // 是否被搜索引擎收录
+  lastChecked DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, indexed])
+  @@map("backlinks")
+}
+
+enum BacklinkStatus {
+  PENDING
+  ACTIVE
+  BROKEN
+  REMOVED
+}
+
+// 用户管理
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  name     String?
+  password String
+  role     UserRole @default(EDITOR)
+
+  // 关联
+  posts Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+// SEO任务调度
+model SeoTask {
+  id      String     @id @default(cuid())
+  type    TaskType
+  status  TaskStatus @default(PENDING)
+  payload Json // 任务参数
+  result  Json? // 任务结果
+
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, scheduledAt])
+  @@map("seo_tasks")
+}
+
+enum TaskType {
+  SITEMAP_GENERATE
+  SITEMAP_SUBMIT
+  KEYWORD_RANK_CHECK
+  BACKLINK_CHECK
+  SPIDER_REPORT
+  POST_SYNC
+}
+
+enum TaskStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// 系统设置
+model SystemSetting {
+  id          String          @id @default(cuid())
+  key         String          @unique
+  value       String          @db.Text
+  description String?
+  category    SettingCategory @default(GENERAL)
+  isEncrypted Boolean         @default(false) // 是否为敏感信息（API Key等）
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@map("system_settings")
+}
+
+enum SettingCategory {
+  GENERAL // 通用设置
+  API // API 配置
+  SEO // SEO 设置
+  ANALYTICS // 分析工具
+  NOTIFICATION // 通知设置
+}

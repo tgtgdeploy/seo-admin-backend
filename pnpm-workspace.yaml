@@ -1,0 +1,18 @@
+# pnpm Workspace Configuration for SEO Cluster Monorepo
+# This file defines all packages in the monorepo
+
+packages:
+  # Current admin project (root)
+  - '.'
+
+  # Shared packages
+  - 'packages/*'
+
+  # Future web templates (to be added)
+  - 'apps/seo-website-1'
+  - 'apps/seo-website-2'
+  - 'apps/seo-website-tg'
+
+  # Future services (to be added)
+  - 'apps/redirect-gateway'
+  - 'apps/spider-engine'
