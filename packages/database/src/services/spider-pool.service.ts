@@ -24,9 +24,9 @@ const THEME_PREFIXES: Record<string, string[]> = {
 
 // 主站配置
 const MAIN_SITES = [
-  { url: 'https://telegram1688.com', name: 'Telegram中文网 1' },
-  { url: 'https://telegram2688.com', name: 'Telegram中文网 2' },
-  { url: 'https://telegramcnfw.com', name: 'TG中文服务' },
+  { url: 'https://telegramtghub.com', name: 'Telegram Hub' },
+  { url: 'https://telegramupdatecenter.com', name: 'Telegram Update Center' },
+  { url: 'https://telegramtrendguide.com', name: 'Telegram Trend Guide' },
 ]
 
 interface ExtractedContent {

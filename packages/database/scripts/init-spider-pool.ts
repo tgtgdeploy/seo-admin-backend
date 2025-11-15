@@ -101,7 +101,7 @@ async function main() {
   let mainWebsite = await prisma.website.findFirst({
     where: {
       OR: [
-        { domain: 'telegram1688.com' },
+        { domain: 'telegramtghub.com' },
         { domain: 'adminseohub.xyz' }
       ]
     }
@@ -111,11 +111,11 @@ async function main() {
     console.log('  创建主网站记录...')
     mainWebsite = await prisma.website.create({
       data: {
-        name: 'Telegram中文网',
-        domain: 'telegram1688.com',
-        description: 'Telegram中文资讯和下载',
+        name: 'Telegram Hub',
+        domain: 'telegramtghub.com',
+        description: 'Telegram资源聚合中心',
         status: 'ACTIVE',
-        seoKeywords: ['Telegram', '电报', '纸飞机'],
+        seoKeywords: ['Telegram', 'telegram资源', 'telegram中文', 'telegram hub'],
         isActive: true,
         apiEnabled: true,
       }
