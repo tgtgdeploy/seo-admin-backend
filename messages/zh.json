@@ -43,7 +43,8 @@
     "websites": "网站管理",
     "keywords": "关键词",
     "sitemaps": "网站地图",
-    "spider": "蜘蛛池",
+    "spider": "爬虫监控",
+    "spiderPool": "蜘蛛池管理",
     "settings": "系统设置"
   },
   "auth": {

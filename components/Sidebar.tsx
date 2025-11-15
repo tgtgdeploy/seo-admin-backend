@@ -19,6 +19,7 @@ export function Sidebar() {
     { key: 'keywords', href: '/keywords', icon: '🔑' },
     { key: 'sitemaps', href: '/sitemaps', icon: '🗺️' },
     { key: 'spider', href: '/spider', icon: '🕷️' },
+    { key: 'spiderPool', href: '/spider-pool', icon: '🕸️' },
   ]
 
   const adminOnlyNavigation = [

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://crawlboostnet.xyz/sitemap.xml

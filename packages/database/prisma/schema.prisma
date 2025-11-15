@@ -85,6 +85,7 @@ model DomainAlias {
   sitemaps        Sitemap[]
   spiderLogs      SpiderLog[]
   keywordRankings KeywordRanking[]
+  spiderPoolPages SpiderPoolPage[] // 蜘蛛池页面
 
   @@index([websiteId, status])
   @@index([domain])
@@ -357,4 +358,87 @@ enum SettingCategory {
   SEO // SEO 设置
   ANALYTICS // 分析工具
   NOTIFICATION // 通知设置
+}
+
+// 蜘蛛池页面内容（动态管理）
+model SpiderPoolPage {
+  id      String @id @default(cuid())
+  pageNum Int // 页码，如 1, 2, 3...
+  slug    String // URL slug，如 page-0001
+
+  // 内容
+  title       String
+  description String   @db.Text
+  keywords    String[] // SEO关键词
+  content     String   @db.Text // HTML内容
+
+  // 主题分类
+  theme String // auto, content, crawl, engine, link, rank, seo, track, traffic
+
+  // 状态
+  status    SpiderPageStatus @default(ACTIVE)
+  published Boolean          @default(true)
+
+  // SEO优化
+  views         Int      @default(0) // 页面访问量
+  crawlerVisits Int      @default(0) // 爬虫访问次数
+  lastCrawled   DateTime? // 最后被爬取时间
+
+  // 生成信息
+  sourceContent String[] // 来源内容ID或标识
+  generatedBy   String? // 生成方式：manual, auto, ai
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联到域名
+  domainAliasId String
+  domainAlias   DomainAlias @relation(fields: [domainAliasId], references: [id], onDelete: Cascade)
+
+  @@unique([domainAliasId, pageNum])
+  @@unique([domainAliasId, slug])
+  @@index([domainAliasId, status, published])
+  @@index([theme, status])
+  @@map("spider_pool_pages")
+}
+
+enum SpiderPageStatus {
+  ACTIVE // 激活
+  ARCHIVED // 归档
+  DRAFT // 草稿
+}
+
+// 蜘蛛池内容源（从现有文章提取）
+model SpiderPoolSource {
+  id          String @id @default(cuid())
+  name        String // 来源名称
+  description String? // 描述
+  filePath    String? // HTML文件路径（如果从文件提取）
+  url         String? // URL（如果从网页提取）
+
+  // 提取的内容
+  paragraphs String[] // 段落数组
+  headings   String[] // 标题数组
+  keywords   String[] // 关键词数组
+
+  // 统计
+  totalParagraphs Int @default(0)
+  totalHeadings   Int @default(0)
+  totalKeywords   Int @default(0)
+
+  // 状态
+  status    SourceStatus @default(ACTIVE)
+  isActive  Boolean      @default(true)
+  lastUsed  DateTime? // 最后使用时间
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("spider_pool_sources")
+}
+
+enum SourceStatus {
+  ACTIVE // 活跃
+  INACTIVE // 停用
+  PROCESSING // 处理中
 }
