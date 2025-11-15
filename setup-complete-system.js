@@ -510,8 +510,8 @@ async function initializeSystem() {
       }
     }
 
-    // 4. 生成网站地图
-    console.log('\n🗺️  生成网站地图...');
+    // 4. 生成网站地图记录
+    console.log('\n🗺️  配置网站地图...');
     for (const site of websites) {
       const website = await prisma.website.findUnique({
         where: { domain: site.domain }
@@ -519,67 +519,43 @@ async function initializeSystem() {
 
       if (!website) continue;
 
-      // 获取该网站的所有已发布文章
-      const posts = await prisma.post.findMany({
+      // 获取该网站的已发布文章数量
+      const postCount = await prisma.post.count({
         where: {
           websiteId: website.id,
           status: 'PUBLISHED'
-        },
-        select: {
-          slug: true,
-          updatedAt: true
         }
       });
 
-      // 构建sitemap XML
-      const urls = [
-        {
-          loc: `https://${site.domain}`,
-          lastmod: new Date().toISOString(),
-          changefreq: 'daily',
-          priority: '1.0'
-        },
-        ...posts.map(post => ({
-          loc: `https://${site.domain}/${post.slug}`,
-          lastmod: post.updatedAt.toISOString(),
-          changefreq: 'weekly',
-          priority: '0.8'
-        }))
-      ];
-
-      const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(url => `  <url>
-    <loc>${url.loc}</loc>
-    <lastmod>${url.lastmod}</lastmod>
-    <changefreq>${url.changefreq}</changefreq>
-    <priority>${url.priority}</priority>
-  </url>`).join('\n')}
-</urlset>`;
+      // 计算sitemap中的URL总数（首页 + 文章）
+      const urlCount = 1 + postCount;
 
       const existingSitemap = await prisma.sitemap.findFirst({
-        where: { websiteId: website.id }
+        where: {
+          websiteId: website.id,
+          type: 'POSTS'
+        }
       });
 
       if (existingSitemap) {
         await prisma.sitemap.update({
           where: { id: existingSitemap.id },
           data: {
-            content: sitemapXml,
-            urlCount: urls.length,
-            updatedAt: new Date()
+            urls: urlCount,
+            lastModified: new Date()
           }
         });
-        console.log(`   ✓ 更新 ${site.domain} 的sitemap (${urls.length} URLs)`);
+        console.log(`   ✓ 更新 ${site.domain} 的sitemap (${urlCount} URLs)`);
       } else {
         await prisma.sitemap.create({
           data: {
             websiteId: website.id,
-            content: sitemapXml,
-            urlCount: urls.length
+            url: `/sitemap.xml`,
+            type: 'POSTS',
+            urls: urlCount
           }
         });
-        console.log(`   ✓ 生成 ${site.domain} 的sitemap (${urls.length} URLs)`);
+        console.log(`   ✓ 配置 ${site.domain} 的sitemap (${urlCount} URLs)`);
       }
     }
 
