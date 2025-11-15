@@ -1,128 +1,154 @@
 /**
- * Public API: Get published posts
- *
- * This endpoint is accessible without session authentication
- * Uses API key authentication for security
- *
- * Usage:
- *   GET /api/public/posts?domain=yourdomain.com
- *   Headers: x-api-key: your-api-key
+ * 公开API: 获取文章列表
+ * 供Vercel部署的主站调用
+ * GET /api/public/posts?domain=telegramtghub.com
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@repo/database'
-import { verifyApiKey } from '@/lib/api-auth'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const domain = searchParams.get('domain')
-    const websiteId = searchParams.get('websiteId')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const limit = parseInt(searchParams.get('limit') || '10')
     const offset = parseInt(searchParams.get('offset') || '0')
+    const slug = searchParams.get('slug')
 
-    // Verify API key (optional for public posts, but recommended)
-    const apiKeyWebsiteId = await verifyApiKey(request)
-
-    // Build query
-    let websiteQuery: any = {}
-
-    if (websiteId) {
-      websiteQuery = { id: websiteId }
-    } else if (domain) {
-      // Support both main domain and aliases
-      websiteQuery = {
-        OR: [
-          { domain: domain },
-          {
-            domainAliases: {
-              some: {
-                domain: domain,
-                isActive: true,
-              },
-            },
-          },
-        ],
-      }
-    } else if (apiKeyWebsiteId) {
-      // If API key provided, use that website
-      websiteQuery = { id: apiKeyWebsiteId }
-    } else {
+    if (!domain) {
       return NextResponse.json(
-        { error: 'Either domain, websiteId, or API key is required' },
+        { error: 'Missing domain parameter' },
         { status: 400 }
       )
     }
 
-    // Fetch posts
-    const posts = await prisma.post.findMany({
+    // 查找网站
+    const website = await prisma.website.findFirst({
       where: {
-        website: websiteQuery,
-        status: 'PUBLISHED',
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        content: true,
-        excerpt: true,
-        coverImage: true,
-        metaTitle: true,
-        metaDescription: true,
-        metaKeywords: true,
-        tags: true,
-        publishedAt: true,
-        createdAt: true,
-        updatedAt: true,
-        website: {
-          select: {
-            id: true,
-            name: true,
-            domain: true,
-          },
+        OR: [
+          { domain },
+          { domainAliases: { some: { domain } } }
+        ],
+        status: 'ACTIVE'
+      }
+    })
+
+    if (!website) {
+      return NextResponse.json(
+        { error: 'Website not found' },
+        { status: 404 }
+      )
+    }
+
+    // 如果请求单个文章
+    if (slug) {
+      const post = await prisma.post.findFirst({
+        where: {
+          slug,
+          websiteId: website.id,
+          status: 'PUBLISHED'
         },
-      },
-      orderBy: {
-        publishedAt: 'desc',
-      },
-      take: limit,
-      skip: offset,
-    })
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          content: true,
+          excerpt: true,
+          coverImage: true,
+          metaTitle: true,
+          metaDescription: true,
+          metaKeywords: true,
+          category: true,
+          tags: true,
+          publishedAt: true,
+          updatedAt: true,
+          author: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        }
+      })
 
-    // Get total count for pagination
-    const total = await prisma.post.count({
-      where: {
-        website: websiteQuery,
-        status: 'PUBLISHED',
-      },
-    })
+      if (!post) {
+        return NextResponse.json(
+          { error: 'Post not found' },
+          { status: 404 }
+        )
+      }
 
-    return NextResponse.json({
+      return NextResponse.json({ post })
+    }
+
+    // 获取文章列表
+    const [posts, total] = await Promise.all([
+      prisma.post.findMany({
+        where: {
+          websiteId: website.id,
+          status: 'PUBLISHED'
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          coverImage: true,
+          metaTitle: true,
+          metaDescription: true,
+          category: true,
+          tags: true,
+          publishedAt: true,
+          updatedAt: true,
+          author: {
+            select: {
+              name: true
+            }
+          }
+        },
+        orderBy: {
+          publishedAt: 'desc'
+        },
+        take: limit,
+        skip: offset
+      }),
+      prisma.post.count({
+        where: {
+          websiteId: website.id,
+          status: 'PUBLISHED'
+        }
+      })
+    ])
+
+    // 添加CORS头
+    const response = NextResponse.json({
       posts,
-      pagination: {
-        total,
-        limit,
-        offset,
-        hasMore: offset + posts.length < total,
-      },
+      total,
+      limit,
+      offset,
+      hasMore: offset + limit < total
     })
+
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
+
+    return response
+
   } catch (error) {
-    console.error('Failed to fetch public posts:', error)
+    console.error('Failed to fetch posts:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch posts' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
 
-// Enable CORS for Vercel websites
+// OPTIONS请求处理（CORS预检）
 export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-api-key, authorization',
-    },
-  })
+  const response = new NextResponse(null, { status: 204 })
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
+  return response
 }
