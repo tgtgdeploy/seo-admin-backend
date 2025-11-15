@@ -349,17 +349,27 @@ const keywords = [
   { keyword: 'TG下载', targetUrl: 'https://telegramtghub.com/telegram-download-guide' }
 ];
 
-// 9个蜘蛛池域名配置
+// 9个蜘蛛池域名配置（按IP分组）
 const spiderPoolDomains = [
-  { domain: 'tgspider1.xyz', description: '蜘蛛池站点1' },
-  { domain: 'tgspider2.xyz', description: '蜘蛛池站点2' },
-  { domain: 'tgspider3.xyz', description: '蜘蛛池站点3' },
-  { domain: 'telegrampool1.com', description: '蜘蛛池站点4' },
-  { domain: 'telegrampool2.com', description: '蜘蛛池站点5' },
-  { domain: 'telegrampool3.com', description: '蜘蛛池站点6' },
-  { domain: 'tghub-pool1.net', description: '蜘蛛池站点7' },
-  { domain: 'tghub-pool2.net', description: '蜘蛛池站点8' },
-  { domain: 'tghub-pool3.net', description: '蜘蛛池站点9' }
+  // VPS 1: 95.111.231.110
+  { domain: 'autopushnetwork.xyz', siteName: 'Auto Push Network', ip: '95.111.231.110' },
+  { domain: 'contentpoolzone.site', siteName: 'Content Pool Zone', ip: '95.111.231.110' },
+  { domain: 'crawlboostnet.xyz', siteName: 'Crawl Boost Net', ip: '95.111.231.110' },
+  // VPS 2: 75.119.154.120
+  { domain: 'crawlenginepro.xyz', siteName: 'Crawl Engine Pro', ip: '75.119.154.120' },
+  { domain: 'linkpushmatrix.site', siteName: 'Link Push Matrix', ip: '75.119.154.120' },
+  { domain: 'rankspiderchain.xyz', siteName: 'Rank Spider Chain', ip: '75.119.154.120' },
+  // VPS 3: 37.60.254.52
+  { domain: 'seohubnetwork.xyz', siteName: 'SEO Hub Network', ip: '37.60.254.52' },
+  { domain: 'spidertrackzone.xyz', siteName: 'Spider Track Zone', ip: '37.60.254.52' },
+  { domain: 'trafficboostflow.site', siteName: 'Traffic Boost Flow', ip: '37.60.254.52' }
+];
+
+// 3个跳转页域名
+const redirectDomains = [
+  { domain: 'adminapihub.xyz', siteName: 'Admin API Hub' },
+  { domain: 'globalinsighthub.xyz', siteName: 'Global Insight Hub' },
+  { domain: 'infostreammedia.xyz', siteName: 'Info Stream Media' }
 ];
 
 async function initializeSystem() {
@@ -551,41 +561,93 @@ ${urls.map(url => `  <url>
       }
     }
 
-    // 5. 配置蜘蛛池域名
+    // 5. 配置蜘蛛池域名（作为DomainAlias）
     console.log('\n🕷️  配置蜘蛛池域名...');
+
+    // 创建或获取"蜘蛛池"主站
+    let spiderPoolWebsite = await prisma.website.findUnique({
+      where: { domain: 'spider-pool.internal' }
+    });
+
+    if (!spiderPoolWebsite) {
+      spiderPoolWebsite = await prisma.website.create({
+        data: {
+          name: '蜘蛛池系统',
+          domain: 'spider-pool.internal',
+          seoTitle: '蜘蛛池系统',
+          seoDescription: 'SEO蜘蛛池内容分发系统',
+          seoKeywords: ['蜘蛛池', 'SEO', '内容分发'],
+          status: 'ACTIVE'
+        }
+      });
+      console.log('   ✓ 创建蜘蛛池主站');
+    }
+
+    // 创建蜘蛛池域名别名
     for (const spiderDomain of spiderPoolDomains) {
-      const existing = await prisma.spiderPoolDomain.findUnique({
+      const existing = await prisma.domainAlias.findUnique({
         where: { domain: spiderDomain.domain }
       });
 
       if (existing) {
-        await prisma.spiderPoolDomain.update({
+        await prisma.domainAlias.update({
           where: { domain: spiderDomain.domain },
           data: {
-            description: spiderDomain.description,
-            status: 'ACTIVE',
-            updatedAt: new Date()
+            siteName: spiderDomain.siteName,
+            siteDescription: `蜘蛛池站点 - ${spiderDomain.siteName} (${spiderDomain.ip})`,
+            status: 'ACTIVE'
           }
         });
         console.log(`   ✓ 更新蜘蛛池域名: ${spiderDomain.domain}`);
       } else {
-        await prisma.spiderPoolDomain.create({
+        await prisma.domainAlias.create({
           data: {
-            ...spiderDomain,
+            domain: spiderDomain.domain,
+            siteName: spiderDomain.siteName,
+            siteDescription: `蜘蛛池站点 - ${spiderDomain.siteName} (${spiderDomain.ip})`,
+            websiteId: spiderPoolWebsite.id,
+            primaryTags: ['telegram', 'tg', '电报'],
+            secondaryTags: ['下载', '中文版', '教程'],
             status: 'ACTIVE'
           }
         });
-        console.log(`   ✓ 添加蜘蛛池域名: ${spiderDomain.domain}`);
+        console.log(`   ✓ 添加蜘蛛池域名: ${spiderDomain.domain} (${spiderDomain.ip})`);
+      }
+    }
+
+    // 6. 配置跳转页域名
+    console.log('\n🔀 配置跳转页域名...');
+    for (const redirectDomain of redirectDomains) {
+      const existing = await prisma.domainAlias.findUnique({
+        where: { domain: redirectDomain.domain }
+      });
+
+      if (existing) {
+        console.log(`   ✓ 跳转页域名已存在: ${redirectDomain.domain}`);
+      } else {
+        await prisma.domainAlias.create({
+          data: {
+            domain: redirectDomain.domain,
+            siteName: redirectDomain.siteName,
+            siteDescription: `跳转页 - ${redirectDomain.siteName}`,
+            websiteId: spiderPoolWebsite.id,
+            primaryTags: ['redirect', '跳转'],
+            secondaryTags: [],
+            status: 'ACTIVE'
+          }
+        });
+        console.log(`   ✓ 添加跳转页域名: ${redirectDomain.domain}`);
       }
     }
 
     console.log('\n✅ 系统初始化完成！\n');
     console.log('📊 初始化统计:');
-    console.log(`   - 网站: ${websites.length} 个`);
+    console.log(`   - 主站: ${websites.length} 个 (telegramtghub.com, telegramupdatecenter.com, telegramtrendguide.com)`);
     console.log(`   - 文章: ${posts.length} 篇`);
     console.log(`   - 关键词: ${keywords.length} 个`);
     console.log(`   - 蜘蛛池域名: ${spiderPoolDomains.length} 个`);
-    console.log('\n🌐 访问管理后台查看: https://adminseohub.xyz\n');
+    console.log(`   - 跳转页域名: ${redirectDomains.length} 个`);
+    console.log('\n🌐 访问管理后台: https://adminseohub.xyz\n');
 
   } catch (error) {
     console.error('❌ 初始化失败:', error);
