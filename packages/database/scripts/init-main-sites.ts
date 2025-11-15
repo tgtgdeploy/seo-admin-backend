@@ -15,7 +15,7 @@
  * 旧域名已废弃: telegram1688.com, telegram2688.com, telegramcnfw.com
  */
 
-import { PrismaClient } from '../src/generated/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -96,8 +96,7 @@ async function main() {
           domain: site.domain,
           status: 'ACTIVE',
           description: site.description,
-          vercelProjectName: site.id,
-          vercelProjectId: site.id,
+          seoKeywords: site.primaryDomain.primaryTags,
         },
       })
       console.log(`  ✓ 创建网站: ${website.name}`)

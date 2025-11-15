@@ -96,6 +96,7 @@ enum DomainStatus {
   ACTIVE // 激活
   INACTIVE // 停用
   PENDING // 待配置DNS
+  REDIRECT // 重定向域名
 }
 
 // 博文管理
@@ -411,7 +412,7 @@ enum SpiderPageStatus {
 // 蜘蛛池内容源（从现有文章提取）
 model SpiderPoolSource {
   id          String @id @default(cuid())
-  name        String // 来源名称
+  name        String @unique // 来源名称（唯一）
   description String? // 描述
   filePath    String? // HTML文件路径（如果从文件提取）
   url         String? // URL（如果从网页提取）
