@@ -124,6 +124,7 @@ backup_database() {
 configure_env() {
     print_step "配置环境变量"
 
+    # 创建根目录 .env.local
     cat > "${APP_DIR}/.env.local" << EOF
 # ==========================================
 # SEO Admin 配置文件
@@ -148,8 +149,23 @@ VERCEL_API_TOKEN=""
 NODE_ENV="production"
 EOF
 
+    # 创建 packages/database/.env（Prisma 需要）
+    print_info "配置 Prisma 环境变量..."
+    mkdir -p "${APP_DIR}/packages/database"
+    cat > "${APP_DIR}/packages/database/.env" << EOF
+# Prisma 数据库连接
+DATABASE_URL="${DATABASE_URL}"
+EOF
+
+    # 导出环境变量到当前 shell
+    export DATABASE_URL="${DATABASE_URL}"
+    export NEXTAUTH_SECRET="${NEXTAUTH_SECRET}"
+    export NEXTAUTH_URL="${NEXTAUTH_URL}"
+    export SETTINGS_ENCRYPTION_KEY="${SETTINGS_ENCRYPTION_KEY}"
+
     print_success "环境变量配置完成"
     print_info "NEXTAUTH_URL: $NEXTAUTH_URL"
+    print_info "已创建 .env.local 和 packages/database/.env"
 }
 
 # 安装依赖
@@ -176,11 +192,14 @@ migrate_database() {
 
     cd "$APP_DIR"
 
+    # 确保环境变量已导出
+    export DATABASE_URL="${DATABASE_URL}"
+
     print_info "生成 Prisma Client..."
-    pnpm run db:generate
+    DATABASE_URL="${DATABASE_URL}" pnpm run db:generate
 
     print_info "同步数据库 Schema..."
-    pnpm run db:push
+    DATABASE_URL="${DATABASE_URL}" pnpm run db:push
 
     print_success "数据库迁移完成"
 }
