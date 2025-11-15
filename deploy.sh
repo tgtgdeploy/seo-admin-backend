@@ -180,8 +180,20 @@ install_dependencies() {
         npm install -g pnpm@8.15.0
     fi
 
+    # 清理旧的依赖和缓存
+    print_info "清理旧的依赖和缓存..."
+    rm -rf node_modules .next .pnpm-store packages/*/node_modules
+
     print_info "安装项目依赖（需要 5-10 分钟）..."
-    pnpm install --frozen-lockfile
+    pnpm install
+
+    # 验证 workspace 依赖
+    print_info "验证 workspace 链接..."
+    if pnpm list @repo/database &> /dev/null; then
+        print_success "Workspace 依赖链接成功"
+    else
+        print_warning "Workspace 依赖可能未正确链接"
+    fi
 
     print_success "依赖安装完成"
 }
@@ -209,6 +221,18 @@ build_project() {
     print_step "构建项目"
 
     cd "$APP_DIR"
+
+    # 确保环境变量已设置
+    export DATABASE_URL="${DATABASE_URL}"
+    export NEXTAUTH_SECRET="${NEXTAUTH_SECRET}"
+    export NEXTAUTH_URL="${NEXTAUTH_URL}"
+    export SETTINGS_ENCRYPTION_KEY="${SETTINGS_ENCRYPTION_KEY}"
+
+    # 再次验证 Prisma Client 已生成
+    if [ ! -d "node_modules/.pnpm/@prisma+client*/node_modules/@prisma/client" ] && [ ! -d "node_modules/@prisma/client" ]; then
+        print_warning "Prisma Client 未找到，重新生成..."
+        DATABASE_URL="${DATABASE_URL}" pnpm run db:generate
+    fi
 
     print_info "构建 Next.js 应用（需要 3-5 分钟）..."
     pnpm run build
