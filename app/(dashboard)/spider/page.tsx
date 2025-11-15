@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from '@/components/I18nProvider'
 
 interface SpiderLog {
@@ -68,8 +69,18 @@ async function fetchSpiderByDomain(timeRange: string = '24h'): Promise<SpiderByD
 
 export default function SpiderPage() {
   const t = useTranslations()
+  const searchParams = useSearchParams()
+  const domainParam = searchParams?.get('domain')
+
   const [timeRange, setTimeRange] = useState('24h')
   const [view, setView] = useState<'overview' | 'by-domain'>('overview')
+
+  // Auto-switch to by-domain view if domain parameter is present
+  useEffect(() => {
+    if (domainParam) {
+      setView('by-domain')
+    }
+  }, [domainParam])
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['spider-stats', timeRange],
@@ -103,6 +114,12 @@ export default function SpiderPage() {
             <p className="mt-2 text-gray-600">
               {t('spider.subtitle')}
             </p>
+            {domainParam && (
+              <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-sm">
+                <span className="mr-2">🔍</span>
+                {t('spider.filteringBy')}: {domainParam}
+              </div>
+            )}
           </div>
           <select
             value={timeRange}
@@ -361,7 +378,9 @@ export default function SpiderPage() {
 
           {/* Domain Cards */}
           <div className="space-y-6">
-            {domainData.domains.map((domain) => (
+            {domainData.domains
+              .filter((domain) => !domainParam || domain.domain === domainParam)
+              .map((domain) => (
               <div
                 key={domain.domain}
                 className="bg-white rounded-lg shadow p-6"

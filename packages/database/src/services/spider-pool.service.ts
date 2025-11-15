@@ -113,31 +113,65 @@ export async function extractContentFromHTML(filePath: string, name: string, key
 }
 
 /**
- * 初始化内容源（从3个HTML文件提取）
+ * 初始化内容源（自动扫描 spider-pool-content 文件夹）
  */
 export async function initializeContentSources(): Promise<void> {
   console.log('🔄 开始提取内容源...')
 
-  const sources = [
-    {
-      name: 'website-1',
-      path: '/home/ubuntu/WebstormProjects/seo-website-1/电报中文版 - Telegram官网2.html',
-      keywords: ['Telegram', '电报', '电报中文版', 'Telegram中文版', 'TG纸飞机']
-    },
-    {
-      name: 'website-2',
-      path: '/home/ubuntu/WebstormProjects/seo-website-2/纸飞机3.html',
-      keywords: ['纸飞机', 'TG飞机', 'Telegram', '电报下载']
-    },
-    {
-      name: 'website-tg',
-      path: '/home/ubuntu/WebstormProjects/seo-website-tg/TG中文纸飞机1/Telegram官网 - Telegram下载.html',
-      keywords: ['Telegram', '电报', 'Telegram下载', '安全即时通讯']
-    }
-  ]
+  const contentDir = '/home/ubuntu/WebstormProjects/seo-admin/spider-pool-content'
 
-  for (const source of sources) {
-    await extractContentFromHTML(source.path, source.name, source.keywords)
+  // 检查文件夹是否存在
+  if (!fs.existsSync(contentDir)) {
+    console.log(`⚠️  内容文件夹不存在: ${contentDir}`)
+    console.log('使用默认配置...')
+
+    // 使用默认配置（兼容旧版本）
+    const defaultSources = [
+      {
+        name: 'website-1',
+        path: '/home/ubuntu/WebstormProjects/seo-website-1/电报中文版 - Telegram官网2.html',
+        keywords: ['Telegram', '电报', '电报中文版', 'Telegram中文版', 'TG纸飞机']
+      },
+      {
+        name: 'website-2',
+        path: '/home/ubuntu/WebstormProjects/seo-website-2/纸飞机3.html',
+        keywords: ['纸飞机', 'TG飞机', 'Telegram', '电报下载']
+      },
+      {
+        name: 'website-tg',
+        path: '/home/ubuntu/WebstormProjects/seo-website-tg/TG中文纸飞机1/Telegram官网 - Telegram下载.html',
+        keywords: ['Telegram', '电报', 'Telegram下载', '安全即时通讯']
+      }
+    ]
+
+    for (const source of defaultSources) {
+      if (fs.existsSync(source.path)) {
+        await extractContentFromHTML(source.path, source.name, source.keywords)
+      }
+    }
+    return
+  }
+
+  // 读取文件夹中的所有 HTML 文件
+  const files = fs.readdirSync(contentDir)
+    .filter(file => file.endsWith('.html'))
+
+  console.log(`📁 发现 ${files.length} 个 HTML 文件`)
+
+  // 默认关键词（通用）
+  const defaultKeywords = ['Telegram', '电报', 'TG', '纸飞机', '即时通讯']
+
+  for (const file of files) {
+    const filePath = `${contentDir}/${file}`
+    const name = file.replace('.html', '')
+
+    // 根据文件名自动生成关键词
+    let keywords = [...defaultKeywords]
+    if (file.includes('telegram')) keywords.push('Telegram中文版', 'TG纸飞机')
+    if (file.includes('zhifei')) keywords.push('纸飞机', 'TG飞机', '电报下载')
+    if (file.includes('download')) keywords.push('Telegram下载', '安全即时通讯')
+
+    await extractContentFromHTML(filePath, name, keywords)
   }
 
   console.log('✅ 内容源提取完成')

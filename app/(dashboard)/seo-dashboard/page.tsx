@@ -4,10 +4,13 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslations } from '@/components/I18nProvider'
 import Link from 'next/link'
 
+type DomainType = 'MAIN_SITE' | 'REDIRECT_PAGE' | 'SPIDER_POOL'
+
 interface DomainHealth {
   domain: string
   siteName: string
   isPrimary: boolean
+  domainType: DomainType
   website: {
     id: string
     name: string
@@ -57,6 +60,34 @@ function getHealthLabel(score: number, t: (key: string) => string): string {
   if (score >= 60) return t('seoDashboard.healthGood')
   if (score >= 40) return t('seoDashboard.healthFair')
   return t('seoDashboard.healthPoor')
+}
+
+function getDomainTypeLabel(type: DomainType, t: (key: string) => string): string {
+  const labels: Record<DomainType, string> = {
+    MAIN_SITE: t('seoDashboard.mainSite'),
+    REDIRECT_PAGE: t('seoDashboard.redirectPage'),
+    SPIDER_POOL: t('seoDashboard.spiderPool'),
+  }
+  return labels[type] || type
+}
+
+function getDomainTypeIcon(type: DomainType): string {
+  const icons: Record<DomainType, string> = {
+    MAIN_SITE: '🏠',
+    REDIRECT_PAGE: '🔗',
+    SPIDER_POOL: '🕷️',
+  }
+  return icons[type] || '🌐'
+}
+
+function groupDomainsByType(domains: DomainHealth[]): Record<DomainType, DomainHealth[]> {
+  return domains.reduce((acc, domain) => {
+    if (!acc[domain.domainType]) {
+      acc[domain.domainType] = []
+    }
+    acc[domain.domainType].push(domain)
+    return acc
+  }, {} as Record<DomainType, DomainHealth[]>)
 }
 
 export default function SEODashboardPage() {
@@ -206,8 +237,8 @@ export default function SEODashboardPage() {
             </div>
           </div>
 
-          {/* Domain Health Cards */}
-          <div className="space-y-6">
+          {/* Domain Health Cards - Grouped by Type */}
+          <div className="space-y-8">
             <h2 className="text-xl font-semibold text-gray-900">
               {t('seoDashboard.domainHealth')}
             </h2>
@@ -223,7 +254,30 @@ export default function SEODashboardPage() {
                 </p>
               </div>
             ) : (
-              data.domains.map((domain) => (
+              (() => {
+                const groupedDomains = groupDomainsByType(data.domains)
+                const domainTypes: DomainType[] = ['MAIN_SITE', 'REDIRECT_PAGE', 'SPIDER_POOL']
+
+                return domainTypes.map((type) => {
+                  const domainsOfType = groupedDomains[type] || []
+                  if (domainsOfType.length === 0) return null
+
+                  return (
+                    <div key={type} className="space-y-4">
+                      {/* Type Header */}
+                      <div className="flex items-center gap-3 pb-2 border-b border-gray-200">
+                        <span className="text-3xl">{getDomainTypeIcon(type)}</span>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {getDomainTypeLabel(type, t)}
+                        </h3>
+                        <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
+                          {domainsOfType.length}
+                        </span>
+                      </div>
+
+                      {/* Domains of this type */}
+                      <div className="space-y-4">
+                        {domainsOfType.map((domain) => (
                 <div
                   key={domain.domain}
                   className="bg-white rounded-lg shadow border border-gray-200 p-6"
@@ -311,26 +365,31 @@ export default function SEODashboardPage() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <Link
-                      href={`/sitemaps`}
+                      href={`/sitemaps?domain=${encodeURIComponent(domain.domain)}`}
                       className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-200"
                     >
                       {t('seoDashboard.viewSitemap')}
                     </Link>
                     <Link
-                      href={`/spider`}
+                      href={`/spider?domain=${encodeURIComponent(domain.domain)}`}
                       className="px-3 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700"
                     >
                       {t('seoDashboard.viewSpiderLogs')}
                     </Link>
                     <Link
-                      href={`/keywords`}
+                      href={`/keywords?domain=${encodeURIComponent(domain.domain)}`}
                       className="px-3 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"
                     >
                       {t('seoDashboard.viewKeywords')}
                     </Link>
                   </div>
                 </div>
-              ))
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })
+              })()
             )}
           </div>
         </>

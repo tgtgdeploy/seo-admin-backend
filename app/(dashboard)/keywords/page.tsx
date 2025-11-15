@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from '@/components/I18nProvider'
 
@@ -50,8 +51,12 @@ async function fetchDomainAliases(websiteId: string) {
 
 export default function KeywordsPage() {
   const t = useTranslations()
+  const searchParams = useSearchParams()
+  const domainParam = searchParams?.get('domain')
+
   const [selectedWebsite, setSelectedWebsite] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('')
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const { data: websites } = useQuery({
     queryKey: ['websites'],
@@ -63,6 +68,26 @@ export default function KeywordsPage() {
     queryFn: () => fetchDomainAliases(selectedWebsite),
     enabled: !!selectedWebsite,
   })
+
+  // Auto-select website and domain based on URL parameter
+  useEffect(() => {
+    if (domainParam && websites && !isInitialized) {
+      // Fetch all domain aliases to find which website this domain belongs to
+      async function findDomain() {
+        for (const website of websites) {
+          const aliases = await fetchDomainAliases(website.id)
+          const matchingAlias = aliases.find((a: any) => a.domain === domainParam)
+          if (matchingAlias) {
+            setSelectedWebsite(website.id)
+            setSelectedDomain(matchingAlias.id)
+            setIsInitialized(true)
+            break
+          }
+        }
+      }
+      findDomain()
+    }
+  }, [domainParam, websites, isInitialized])
 
   const { data: keywords, isLoading } = useQuery({
     queryKey: ['keywords', selectedWebsite, selectedDomain],
@@ -87,6 +112,12 @@ export default function KeywordsPage() {
           <p className="mt-2 text-gray-600">
             {t('keywords.subtitle')}
           </p>
+          {domainParam && (
+            <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-sm">
+              <span className="mr-2">🔍</span>
+              {t('keywords.filteringBy')}: {domainParam}
+            </div>
+          )}
         </div>
         <Link
           href="/keywords/create"

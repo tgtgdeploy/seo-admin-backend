@@ -393,6 +393,7 @@
   "spider": {
     "title": "蜘蛛池监控",
     "subtitle": "监控搜索引擎爬虫访问",
+    "filteringBy": "筛选域名",
     "overview": "蜘蛛概览",
     "totalVisits": "总访问量",
     "uniqueSpiders": "独立蜘蛛数",
@@ -572,6 +573,7 @@
     "title": "关键词管理",
     "subtitle": "追踪和管理SEO关键词排名",
     "add": "添加关键词",
+    "filteringBy": "筛选域名",
     "filterByWebsite": "按网站筛选",
     "allWebsites": "所有网站",
     "filterByDomain": "按域名筛选",
@@ -665,6 +667,9 @@
     "healthFair": "一般",
     "healthPoor": "较差",
     "noDomains": "暂无域名配置",
-    "noDomainsDesc": "请先在网站管理中配置域名别名以启用 SEO 监控"
+    "noDomainsDesc": "请先在网站管理中配置域名别名以启用 SEO 监控",
+    "mainSite": "主站域名",
+    "redirectPage": "跳转页",
+    "spiderPool": "蜘蛛池域名"
   }
 }

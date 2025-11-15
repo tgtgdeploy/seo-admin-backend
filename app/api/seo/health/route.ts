@@ -151,6 +151,7 @@ export async function GET() {
           domain: domain.domain,
           siteName: domain.siteName,
           isPrimary: domain.isPrimary,
+          domainType: domain.domainType,
           website: domain.website,
           primaryTags: domain.primaryTags,
           healthScore: Math.round(healthScore),

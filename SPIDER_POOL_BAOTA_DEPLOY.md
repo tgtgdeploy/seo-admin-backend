@@ -3,7 +3,7 @@
 ## 📋 部署概述
 
 **方式**: 动态API方式（无需上传静态文件）
-**Admin API**: https://admin.telegram1688.com
+**Admin API**: https://adminseohub.xyz
 **数据库**: Supabase（已配置完成）
 **页面数**: 1,350个（9个域名 × 150页）
 
@@ -121,8 +121,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/autopushnetwork.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -132,15 +132,15 @@ server {
 
     # Sitemap
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/autopushnetwork.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     # Robots.txt
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/autopushnetwork.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -292,7 +292,7 @@ chmod +x /tmp/test_spider_domains.sh
 
 ### 在Admin后台查看统计
 
-访问：https://admin.telegram1688.com/spider-pool
+访问：https://adminseohub.xyz/spider-pool
 
 可以查看：
 - 每个域名的页面数
@@ -336,7 +336,7 @@ nc -zv 95.111.231.110 443
 **检查**：
 ```bash
 # 测试Admin API
-curl https://admin.telegram1688.com/api/p/autopushnetwork.xyz?slug=/index
+curl https://adminseohub.xyz/api/p/autopushnetwork.xyz?slug=/index
 ```
 
 **解决**：
@@ -387,6 +387,6 @@ curl https://admin.telegram1688.com/api/p/autopushnetwork.xyz?slug=/index
 - 测试脚本：上面提供的bash脚本
 
 **需要帮助？**
-- Admin后台：https://admin.telegram1688.com
-- 蜘蛛池管理：https://admin.telegram1688.com/spider-pool
+- Admin后台：https://adminseohub.xyz
+- 蜘蛛池管理：https://adminseohub.xyz/spider-pool
 - 数据库：Supabase Dashboard

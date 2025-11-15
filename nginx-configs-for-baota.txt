@@ -2,7 +2,7 @@
 # 蜘蛛池Nginx配置文件 - 宝塔面板使用
 # ==========================================
 # 说明：将以下配置复制到宝塔面板对应站点的Nginx配置中
-# Admin API地址：https://admin.telegram1688.com
+# Admin API地址：https://adminseohub.xyz
 # ==========================================
 
 # ========== VPS 1 (95.111.231.110) ==========
@@ -30,8 +30,8 @@ server {
         }
 
         # 代理到admin backend
-        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/autopushnetwork.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -44,16 +44,16 @@ server {
 
     # sitemap.xml
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/autopushnetwork.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
         proxy_cache_valid 200 1h;
     }
 
     # robots.txt
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/autopushnetwork.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/autopushnetwork.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
         proxy_cache_valid 200 1d;
     }
@@ -74,8 +74,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/contentpoolzone.site?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/contentpoolzone.site?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -84,14 +84,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/contentpoolzone.site?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/contentpoolzone.site?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/contentpoolzone.site?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/contentpoolzone.site?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -111,8 +111,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/crawlboostnet.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/crawlboostnet.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -121,14 +121,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/crawlboostnet.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/crawlboostnet.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/crawlboostnet.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/crawlboostnet.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -151,8 +151,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/crawlenginepro.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/crawlenginepro.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -161,14 +161,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/crawlenginepro.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/crawlenginepro.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/crawlenginepro.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/crawlenginepro.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -188,8 +188,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/linkpushmatrix.site?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/linkpushmatrix.site?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -198,14 +198,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/linkpushmatrix.site?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/linkpushmatrix.site?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/linkpushmatrix.site?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/linkpushmatrix.site?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -225,8 +225,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/rankspiderchain.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/rankspiderchain.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -235,14 +235,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/rankspiderchain.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/rankspiderchain.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/rankspiderchain.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/rankspiderchain.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -265,8 +265,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/seohubnetwork.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/seohubnetwork.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -275,14 +275,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/seohubnetwork.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/seohubnetwork.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/seohubnetwork.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/seohubnetwork.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -302,8 +302,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/spidertrackzone.xyz?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/spidertrackzone.xyz?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -312,14 +312,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/spidertrackzone.xyz?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/spidertrackzone.xyz?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/spidertrackzone.xyz?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/spidertrackzone.xyz?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }
@@ -339,8 +339,8 @@ server {
             set $request_slug /index;
         }
 
-        proxy_pass https://admin.telegram1688.com/api/p/trafficboostflow.site?slug=$request_slug;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/trafficboostflow.site?slug=$request_slug;
+        proxy_set_header Host adminseohub.xyz;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -349,14 +349,14 @@ server {
     }
 
     location = /sitemap.xml {
-        proxy_pass https://admin.telegram1688.com/api/p/trafficboostflow.site?type=sitemap;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/trafficboostflow.site?type=sitemap;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type application/xml;
     }
 
     location = /robots.txt {
-        proxy_pass https://admin.telegram1688.com/api/p/trafficboostflow.site?type=robots;
-        proxy_set_header Host admin.telegram1688.com;
+        proxy_pass https://adminseohub.xyz/api/p/trafficboostflow.site?type=robots;
+        proxy_set_header Host adminseohub.xyz;
         add_header Content-Type text/plain;
     }
 }

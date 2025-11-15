@@ -67,8 +67,9 @@ model DomainAlias {
   secondaryTags String[] // 次要标签，权重低
 
   // 状态
-  status    DomainStatus @default(ACTIVE)
-  isPrimary Boolean      @default(false) // 是否为主域名
+  status     DomainStatus @default(ACTIVE)
+  isPrimary  Boolean      @default(false) // 是否为主域名
+  domainType DomainType   @default(SPIDER_POOL) // 域名类型：主站/跳转页/蜘蛛池
 
   // 流量统计
   visits    Int       @default(0) // 访问次数
@@ -97,6 +98,13 @@ enum DomainStatus {
   INACTIVE // 停用
   PENDING // 待配置DNS
   REDIRECT // 重定向域名
+}
+
+// 域名类型分类
+enum DomainType {
+  MAIN_SITE // 主站域名
+  REDIRECT_PAGE // 跳转页
+  SPIDER_POOL // 蜘蛛池域名
 }
 
 // 博文管理
