@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       })),
       recentPosts: recentPosts.map(p => ({
         title: p.title,
-        views: p.viewCount,
+        publishedAt: p.publishedAt,
       })),
     }
 
@@ -90,7 +90,7 @@ ${analysisData.websites.map(w => `- ${w.name} (${w.domain}): ${w.postCount} 篇�
 - 重点关键词: ${analysisData.topKeywords.map(k => `${k.keyword} (${k.volume}/月)`).join(', ')}
 
 **最近文章**:
-${analysisData.recentPosts.map(p => `- ${p.title} (${p.views} 次浏览)`).join('\n')}
+${analysisData.recentPosts.map(p => `- ${p.title}`).join('\n')}
 
 请提供:
 1. **整体评估** (1-10分): 当前 SEO 状况评分

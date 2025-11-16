@@ -7,10 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@repo/database'
 import spiderPoolService from '@repo/database/src/services/spider-pool.service'
-
-const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
