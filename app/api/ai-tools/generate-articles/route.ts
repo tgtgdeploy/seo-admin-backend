@@ -45,17 +45,8 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 2. 获取未使用的长尾关键词
+    // 2. 获取关键词（按搜索量和难度排序）
     const keywords = await prisma.keyword.findMany({
-      where: {
-        category: {
-          in: ['download-combination', 'download-chinese', 'telegram-chinese',
-               'features-combination', 'telegram-longtail']
-        },
-        usageCount: {
-          lt: 2,
-        },
-      },
       orderBy: [
         { volume: 'desc' },
         { difficulty: 'asc' },
@@ -66,7 +57,7 @@ export async function POST(req: NextRequest) {
     if (keywords.length === 0) {
       return NextResponse.json({
         success: false,
-        message: '所有关键词都已使用，请添加新的关键词',
+        message: '没有可用的关键词，请先添加关键词',
       })
     }
 
@@ -138,15 +129,8 @@ export async function POST(req: NextRequest) {
             tags: article.tags || [],
             status: 'DRAFT',
             websiteId: website.id,
-            authorName: 'AI Writer',
-            viewCount: 0,
+            authorId: session.user.id,
           },
-        })
-
-        // 更新关键词使用计数
-        await prisma.keyword.update({
-          where: { id: keyword.id },
-          data: { usageCount: { increment: 1 } },
         })
 
         results.push({
