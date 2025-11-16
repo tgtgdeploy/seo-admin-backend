@@ -106,7 +106,6 @@ export async function POST(req: NextRequest) {
           model,
           prompt,
           temperature: 0.8,
-          maxTokens: 4000,
         })
 
         const jsonMatch = text.match(/\{[\s\S]*\}/)

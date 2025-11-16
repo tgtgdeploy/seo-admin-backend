@@ -113,7 +113,6 @@ ${analysisData.recentPosts.map(p => `- ${p.title} (${p.views} 次浏览)`).join(
       model,
       prompt,
       temperature: 0.7,
-      maxTokens: 2500,
     })
 
     const jsonMatch = text.match(/\{[\s\S]*\}/)
