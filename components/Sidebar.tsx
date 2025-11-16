@@ -14,6 +14,7 @@ export function Sidebar() {
   const navigation = [
     { key: 'dashboard', href: '/dashboard', icon: '📊' },
     { key: 'seoDashboard', href: '/seo-dashboard', icon: '🎯' },
+    { key: 'aiTools', href: '/ai-seo-tools', icon: '🤖' },
     { key: 'websites', href: '/websites', icon: '🌐' },
     { key: 'posts', href: '/posts', icon: '📝' },
     { key: 'keywords', href: '/keywords', icon: '🔑' },

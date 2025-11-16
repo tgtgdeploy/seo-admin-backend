@@ -39,6 +39,7 @@
   "nav": {
     "dashboard": "仪表板",
     "seoDashboard": "SEO监控",
+    "aiTools": "AI优化工具",
     "posts": "文章管理",
     "websites": "网站管理",
     "keywords": "关键词",
@@ -671,5 +672,45 @@
     "mainSite": "主站域名",
     "redirectPage": "跳转页",
     "spiderPool": "蜘蛛池域名"
+  },
+  "aiTools": {
+    "title": "AI SEO 优化工具",
+    "subtitle": "使用 AI 智能优化网站内容，提升搜索引擎排名",
+    "generating": "生成中...",
+    "optimizing": "优化中...",
+    "submitting": "提交中...",
+    "analyzing": "分析中...",
+    "generateArticles": {
+      "title": "AI 文章生成器",
+      "description": "基于长尾关键词自动生成 SEO 优化文章",
+      "count": "生成数量",
+      "button": "开始生成文章",
+      "result": "生成结果"
+    },
+    "optimizeContent": {
+      "title": "内容 SEO 优化",
+      "description": "AI 优化现有文章的标题、描述和关键词",
+      "button": "开始优化内容",
+      "result": "优化结果"
+    },
+    "submitSitemaps": {
+      "title": "搜索引擎提交",
+      "description": "自动提交网站地图到 Google 等搜索引擎",
+      "button": "提交网站地图",
+      "result": "提交结果"
+    },
+    "seoAnalysis": {
+      "title": "AI SEO 分析",
+      "description": "综合分析网站 SEO 状况并提供改进建议",
+      "button": "生成分析报告",
+      "result": "分析结果"
+    },
+    "tips": {
+      "title": "使用提示",
+      "tip1": "所有 AI 生成的文章都会保存为草稿，请审核后再发布",
+      "tip2": "建议每周运行 2-3 次文章生成器以保持内容更新",
+      "tip3": "定期查看 SEO 分析报告，根据建议进行优化",
+      "tip4": "提交网站地图后，通常需要几小时到几天时间才会被索引"
+    }
   }
 }
