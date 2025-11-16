@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       select: {
         title: true,
         metaKeywords: true,
-        viewCount: true,
+        publishedAt: true,
       },
     })
 
