@@ -81,10 +81,8 @@ function generateIndexHTML(domain: string, siteName: string, pages: any[]): stri
     </div>
 
     <div class="main-sites">
-        <h3>访问我们的主站</h3>
-        <a href="https://telegram1688.com" target="_blank">Telegram中文网 1</a>
-        <a href="https://telegram2688.com" target="_blank">Telegram中文网 2</a>
-        <a href="https://telegramcnfw.com" target="_blank">TG中文服务</a>
+        <h3>推荐资源</h3>
+        <a href="https://telegramtghub.com" target="_blank" rel="nofollow">Telegram Hub</a>
     </div>
 </body>
 </html>`

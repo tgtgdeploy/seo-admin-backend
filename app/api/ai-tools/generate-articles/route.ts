@@ -79,33 +79,37 @@ export async function POST(req: NextRequest) {
 
       try {
         // AI 生成文章
-        const prompt = `你是一位专业的 SEO 内容写作专家，专注于 Telegram 相关主题。
+        const prompt = `你是 Telegram 领域的专业内容创作者，为中文用户提供实用的使用指南和最佳实践。
 
-目标关键词: ${keyword.keyword}
-网站名称: ${website.name}
+主题: ${keyword.keyword}
+网站: ${website.name}
 
-请创作一篇高质量的 SEO 优化文章，要求:
-1. 标题 (50-60字符): 必须包含目标关键词
-2. 文章内容 (1500-2500字): 结构清晰，使用 H2、H3 标题，关键词密度 2-3%
-3. Meta Description (150-160字符)
-4. 5-7 个相关关键词
+请创作一篇实用且易读的文章，要求:
+1. 标题自然流畅，围绕"${keyword.keyword}"展开
+2. 内容详实 (1500-2000字)，包含实际使用案例和建议
+3. 使用清晰的章节结构 (H2/H3 标题)
+4. 提供简短摘要，帮助读者快速了解主题
+5. 语气友好专业，避免生硬的重复表达
 
 返回 JSON 格式:
 {
   "title": "文章标题",
   "slug": "url-friendly-slug",
-  "excerpt": "文章摘要 (150字)",
+  "excerpt": "文章摘要 (120-150字)",
   "content": "完整 Markdown 内容",
-  "metaTitle": "SEO 标题",
-  "metaDescription": "SEO 描述",
-  "keywords": ["关键词1", "关键词2"],
-  "tags": ["标签1", "标签2"]
+  "metaTitle": "页面标题",
+  "metaDescription": "页面描述 (140-160字)",
+  "keywords": ["相关主题1", "相关主题2"],
+  "tags": ["分类标签1", "分类标签2"]
 }`
+
+        // 增加 temperature 变化，避免生成模式过于规律
+        const temperature = 0.7 + Math.random() * 0.4 // 0.7-1.1
 
         const { text } = await generateText({
           model,
           prompt,
-          temperature: 0.8,
+          temperature,
         })
 
         const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -126,7 +130,7 @@ export async function POST(req: NextRequest) {
             metaDescription: article.metaDescription,
             metaKeywords: article.keywords,
             tags: article.tags || [],
-            status: 'DRAFT',
+            status: 'DRAFT', // 改为草稿，需人工审核后发布
             websiteId: website.id,
             authorId: session.user.id,
           },

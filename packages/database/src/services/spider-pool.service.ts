@@ -235,24 +235,27 @@ export async function generateSpiderPoolPages(
     where: { domainAliasId }
   })
 
-  // 批量生成页面
+  // 批量生成页面（增强差异化）
   const pages = []
   for (let i = 1; i <= pageCount; i++) {
-    const randomParagraphs = shuffle(content.paragraphs).slice(0, 5 + Math.floor(Math.random() * 8))
-    const randomKeywords = shuffle(content.keywords).slice(0, 8 + Math.floor(Math.random() * 12))
+    // 根据页面编号变化段落数量（增加差异化）
+    const minParagraphs = 4 + (i % 3)  // 4-6
+    const maxParagraphs = 10 + (i % 5) // 10-14
+    const paragraphCount = minParagraphs + Math.floor(Math.random() * (maxParagraphs - minParagraphs))
+
+    const randomParagraphs = shuffle(content.paragraphs).slice(0, paragraphCount)
+    const randomKeywords = shuffle(content.keywords).slice(0, 6 + Math.floor(Math.random() * 15))
     const randomHeading = shuffle(content.headings)[0]
 
     const themePrefix = getThemePrefix(theme)
     const title = `${themePrefix} - ${randomHeading}`
     const slug = `page-${String(i).padStart(4, '0')}`
 
-    // 生成主站链接（随机顺序）
-    const shuffledSites = shuffle(MAIN_SITES)
-    const siteLinks = shuffledSites.map(site =>
-      `<a href="${site.url}" target="_blank">${site.name}</a>`
-    ).join(' | ')
+    // 生成主站链接（随机选择1个，添加nofollow）
+    const randomSite = MAIN_SITES[Math.floor(Math.random() * MAIN_SITES.length)]
+    const siteLinks = `<a href="${randomSite.url}" target="_blank" rel="nofollow">${randomSite.name}</a>`
 
-    // 生成HTML内容
+    // 生成HTML内容（传递页码信息用于内部链接）
     const htmlContent = generatePageHTML({
       title,
       description: randomParagraphs[0].substring(0, 160),
@@ -261,6 +264,8 @@ export async function generateSpiderPoolPages(
       headings: content.headings,
       domain: domainAlias.domain,
       siteLinks,
+      pageNum: i,
+      totalPages: pageCount,
     })
 
     pages.push({
@@ -292,7 +297,7 @@ export async function generateSpiderPoolPages(
 }
 
 /**
- * 生成单个页面的HTML内容
+ * 生成单个页面的HTML内容（带主题样式和内部链接）
  */
 function generatePageHTML(params: {
   title: string
@@ -302,8 +307,35 @@ function generatePageHTML(params: {
   headings: string[]
   domain: string
   siteLinks: string
+  pageNum?: number
+  totalPages?: number
 }): string {
-  const { title, description, keywords, paragraphs, headings, domain, siteLinks } = params
+  const { title, description, keywords, paragraphs, headings, domain, siteLinks, pageNum = 1, totalPages = 150 } = params
+
+  // 根据域名哈希生成不同的主题颜色
+  const domainHash = domain.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const themeColors = [
+    { primary: '#0088cc', gradient: '#667eea, #764ba2' },     // 蓝紫
+    { primary: '#ff6b6b', gradient: '#f093fb, #f5576c' },     // 红粉
+    { primary: '#2ecc71', gradient: '#11998e, #38ef7d' },     // 绿
+    { primary: '#f39c12', gradient: '#fa709a, #fee140' },     // 橙黄
+    { primary: '#9b59b6', gradient: '#667eea, #764ba2' },     // 紫
+    { primary: '#1abc9c', gradient: '#56ccf2, #2f80ed' },     // 青蓝
+    { primary: '#e74c3c', gradient: '#ee0979, #ff6a00' },     // 深红
+    { primary: '#3498db', gradient: '#00c6ff, #0072ff' },     // 天蓝
+    { primary: '#e67e22', gradient: '#f77062, #fe5196' },     // 橙红
+  ]
+  const theme = themeColors[domainHash % themeColors.length]
+
+  // 生成随机内部链接（3-5个）
+  const internalLinks = []
+  const linkCount = 3 + Math.floor(Math.random() * 3)
+  for (let i = 0; i < linkCount; i++) {
+    const randomPage = Math.floor(Math.random() * totalPages) + 1
+    if (randomPage !== pageNum) {
+      internalLinks.push(`page-${String(randomPage).padStart(4, '0')}`)
+    }
+  }
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -332,10 +364,10 @@ function generatePageHTML(params: {
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         h1 {
-            color: #0088cc;
+            color: ${theme.primary};
             font-size: 32px;
             margin-bottom: 20px;
-            border-bottom: 3px solid #0088cc;
+            border-bottom: 3px solid ${theme.primary};
             padding-bottom: 15px;
         }
         h2 {
@@ -343,7 +375,7 @@ function generatePageHTML(params: {
             font-size: 24px;
             margin: 35px 0 15px;
             padding-left: 10px;
-            border-left: 4px solid #0088cc;
+            border-left: 4px solid ${theme.primary};
         }
         p {
             margin-bottom: 18px;
@@ -353,8 +385,36 @@ function generatePageHTML(params: {
         .keywords {
             margin: 25px 0;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, ${theme.gradient});
             border-radius: 8px;
+        }
+        .related-links {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid ${theme.primary};
+        }
+        .related-links h3 {
+            color: ${theme.primary};
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .related-links a {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 8px 16px;
+            background: white;
+            color: ${theme.primary};
+            text-decoration: none;
+            border-radius: 5px;
+            border: 1px solid ${theme.primary};
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .related-links a:hover {
+            background: ${theme.primary};
+            color: white;
         }
         .keywords strong {
             color: white;
@@ -385,13 +445,13 @@ function generatePageHTML(params: {
             color: #999;
         }
         footer a {
-            color: #0088cc;
+            color: ${theme.primary};
             text-decoration: none;
             margin: 0 10px;
             transition: color 0.3s;
         }
         footer a:hover {
-            color: #005580;
+            opacity: 0.8;
             text-decoration: underline;
         }
         .meta-info {
@@ -422,8 +482,15 @@ function generatePageHTML(params: {
           return `<p>${p}</p>`
         }).join('\n        ')}
 
+        ${internalLinks.length > 0 ? `
+        <div class="related-links">
+            <h3>📚 相关文章</h3>
+            ${internalLinks.map(link => `<a href="/${link}.html">阅读更多</a>`).join('')}
+        </div>
+        ` : ''}
+
         <footer>
-            <p><strong>推荐阅读</strong></p>
+            <p><strong>推荐资源</strong></p>
             <p>${siteLinks}</p>
             <p class="meta-info" style="margin-top: 15px;">
                 © ${new Date().getFullYear()} ${domain} |
@@ -481,7 +548,7 @@ export async function trackPageView(pageId: string, isCrawler: boolean = false) 
 }
 
 /**
- * 生成Sitemap XML
+ * 生成Sitemap XML（差异化格式）
  */
 export async function generateSitemap(domainAliasId: string): Promise<string> {
   const domainAlias = await prisma.domainAlias.findUnique({
@@ -494,15 +561,38 @@ export async function generateSitemap(domainAliasId: string): Promise<string> {
 
   const pages = await getDomainPages(domainAliasId)
 
+  // 根据域名哈希决定sitemap格式
+  const domainHash = domainAlias.domain.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const format = domainHash % 3
+
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+  // 格式1: 标准sitemap
+  if (format === 0) {
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  }
+  // 格式2: 带图片扩展的sitemap
+  else if (format === 1) {
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+    xml += '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
+  }
+  // 格式3: 带移动端标签的sitemap
+  else {
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+    xml += '        xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0">\n'
+  }
 
   // 首页
-  xml += `  <url><loc>https://${domainAlias.domain}/</loc><priority>1.0</priority></url>\n`
+  xml += `  <url>\n    <loc>https://${domainAlias.domain}/</loc>\n`
+  xml += `    <priority>1.0</priority>\n`
+  if (format === 2) xml += `    <mobile:mobile/>\n`
+  xml += `  </url>\n`
 
   // 所有页面
   for (const page of pages) {
-    xml += `  <url><loc>https://${domainAlias.domain}/${page.slug}.html</loc></url>\n`
+    xml += `  <url>\n    <loc>https://${domainAlias.domain}/${page.slug}.html</loc>\n`
+    if (format === 2) xml += `    <mobile:mobile/>\n`
+    xml += `  </url>\n`
   }
 
   xml += '</urlset>'
@@ -511,7 +601,7 @@ export async function generateSitemap(domainAliasId: string): Promise<string> {
 }
 
 /**
- * 生成robots.txt
+ * 生成robots.txt（差异化内容）
  */
 export async function generateRobotsTxt(domainAliasId: string): Promise<string> {
   const domainAlias = await prisma.domainAlias.findUnique({
@@ -522,11 +612,45 @@ export async function generateRobotsTxt(domainAliasId: string): Promise<string> 
     throw new Error('域名不存在')
   }
 
-  return `User-agent: *
+  // 根据域名哈希决定robots.txt格式
+  const domainHash = domainAlias.domain.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const format = domainHash % 3
+
+  let robots = ''
+
+  // 格式1: 标准格式
+  if (format === 0) {
+    robots = `User-agent: *
 Allow: /
 
 Sitemap: https://${domainAlias.domain}/sitemap.xml
 `
+  }
+  // 格式2: 添加 Crawl-delay
+  else if (format === 1) {
+    robots = `User-agent: *
+Allow: /
+Crawl-delay: 5
+
+Sitemap: https://${domainAlias.domain}/sitemap.xml
+`
+  }
+  // 格式3: 特定爬虫规则
+  else {
+    robots = `User-agent: *
+Allow: /
+
+User-agent: Bingbot
+Crawl-delay: 10
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://${domainAlias.domain}/sitemap.xml
+`
+  }
+
+  return robots
 }
 
 /**
