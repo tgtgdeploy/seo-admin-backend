@@ -11,7 +11,14 @@
  * 6. ✅ 添加随机内部链接（3-5个）
  */
 
-const { PrismaClient } = require('@prisma/client')
+// 使用正确的路径导入模块
+const { PrismaClient } = require('./packages/database/node_modules/@prisma/client')
+const path = require('path')
+
+// 设置NODE_PATH以便服务可以找到依赖
+process.env.NODE_PATH = path.join(__dirname, 'packages/database/node_modules')
+require('module').Module._initPaths()
+
 const spiderPoolService = require('./packages/database/src/services/spider-pool.service')
 
 const prisma = new PrismaClient()
