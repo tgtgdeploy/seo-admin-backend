@@ -38,11 +38,12 @@ model Website {
   updatedAt DateTime @updatedAt
 
   // 关联
-  posts         Post[]
-  keywords      Keyword[]
-  sitemaps      Sitemap[]
-  spiderLogs    SpiderLog[]
-  domainAliases DomainAlias[]
+  posts          Post[]
+  keywords       Keyword[]
+  sitemaps       Sitemap[]
+  spiderLogs     SpiderLog[]
+  domainAliases  DomainAlias[]
+  downloadConfigs DownloadConfig[]
 
   @@map("websites")
 }
@@ -450,4 +451,48 @@ enum SourceStatus {
   ACTIVE // 活跃
   INACTIVE // 停用
   PROCESSING // 处理中
+}
+
+// 下载配置管理（多平台下载链接）
+model DownloadConfig {
+  id       String @id @default(cuid())
+  platform String // android, ios, windows, mac, linux, web
+
+  // 下载链接
+  downloadUrl String? // 直接下载链接
+  storeUrl    String? // 应用商店链接（如 Play Store, App Store）
+
+  // 版本信息
+  version        String // 版本号，如 "10.5.2"
+  releaseDate    DateTime // 发布日期
+  fileSize       String? // 文件大小，如 "45.2 MB"
+  minOsVersion   String? // 最低系统版本，如 "Android 6.0+", "iOS 12.0+", "Windows 10+"
+
+  // 状态
+  status    DownloadStatus @default(ACTIVE)
+  isDefault Boolean        @default(false) // 是否为默认配置（同一平台只能有一个默认）
+  priority  Int            @default(0) // 优先级（数字越大优先级越高）
+
+  // 统计
+  downloadCount Int       @default(0) // 下载次数
+  lastDownload  DateTime? // 最后下载时间
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联到网站
+  websiteId String
+  website   Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, platform, isDefault]) // 确保每个平台只有一个默认配置
+  @@index([websiteId, status])
+  @@index([platform, status])
+  @@map("download_configs")
+}
+
+enum DownloadStatus {
+  ACTIVE // 激活
+  INACTIVE // 停用
+  MAINTENANCE // 维护中
+  DEPRECATED // 已弃用
 }

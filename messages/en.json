@@ -39,11 +39,14 @@
   "nav": {
     "dashboard": "Dashboard",
     "seoDashboard": "SEO Monitor",
+    "aiTools": "AI Tools",
     "posts": "Posts",
     "websites": "Websites",
+    "downloads": "Downloads",
     "keywords": "Keywords",
     "sitemaps": "Sitemaps",
     "spider": "Spider",
+    "spiderPool": "Spider Pool",
     "settings": "Settings"
   },
   "auth": {
