@@ -13,8 +13,8 @@ module.exports = {
     {
       name: 'seo-admin',
       script: 'node_modules/.bin/next',
-      args: 'start --port 3100',
-      cwd: process.cwd(), // Use current working directory
+      args: 'start -p 3100',  // 使用 -p 参数而不是 --port
+      cwd: '/www/wwwroot/seo-admin',  // 使用绝对路径
       instances: 1, // Single instance (Next.js handles concurrency)
       exec_mode: 'fork', // Use 'cluster' for API-heavy workloads
 
@@ -28,9 +28,8 @@ module.exports = {
 
       // Logging
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      error_file: '/var/log/pm2/seo-admin-error.log',
-      out_file: '/var/log/pm2/seo-admin-out.log',
-      log_file: '/var/log/pm2/seo-admin-combined.log',
+      error_file: '/root/.pm2/logs/seo-admin-error.log',
+      out_file: '/root/.pm2/logs/seo-admin-out.log',
       merge_logs: true,
 
       // Restart strategy
@@ -41,8 +40,6 @@ module.exports = {
 
       // Graceful shutdown
       kill_timeout: 5000,
-      wait_ready: true,
-      listen_timeout: 10000,
 
       // Watch (disable in production)
       watch: false,
