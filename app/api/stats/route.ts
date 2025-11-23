@@ -12,25 +12,54 @@ export async function GET() {
     }
 
     // Get stats in parallel
-    const [totalWebsites, totalPosts, totalKeywords, recentSpiderVisits] =
-      await Promise.all([
-        prisma.website.count(),
-        prisma.post.count(),
-        prisma.keyword.count(),
-        prisma.spiderLog.count({
-          where: {
-            createdAt: {
-              gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
-            },
+    const [
+      totalWebsites,
+      totalPosts,
+      totalKeywords,
+      recentSpiderVisits,
+      spiderPoolDomains,
+      spiderPoolPages,
+      totalDomainVisits,
+      activeDomains,
+    ] = await Promise.all([
+      prisma.website.count(),
+      prisma.post.count(),
+      prisma.keyword.count(),
+      prisma.spiderLog.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
           },
-        }),
-      ])
+        },
+      }),
+      // Spider Pool stats
+      prisma.domainAlias.count({
+        where: { domainType: 'SPIDER_POOL' },
+      }),
+      prisma.spiderPoolPage.count(),
+      prisma.domainAlias.aggregate({
+        where: { domainType: 'SPIDER_POOL' },
+        _sum: { visits: true },
+      }),
+      prisma.domainAlias.count({
+        where: {
+          domainType: 'SPIDER_POOL',
+          status: 'ACTIVE',
+        },
+      }),
+    ])
 
     return NextResponse.json({
       totalWebsites,
       totalPosts,
       totalKeywords,
       recentSpiderVisits,
+      spiderPool: {
+        totalDomains: spiderPoolDomains,
+        totalPages: spiderPoolPages,
+        totalVisits: totalDomainVisits._sum.visits || 0,
+        activeDomains,
+      },
     })
   } catch (error) {
     console.error('Failed to fetch stats:', error)
