@@ -88,7 +88,7 @@ openssl rand -base64 32
 
 ```bash
 # 如果没有pnpm,先安装
-npm install -g pnpm
+
 
 # 安装项目依赖
 pnpm install

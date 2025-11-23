@@ -15,12 +15,14 @@ export function MobileSidebar() {
 
   const navigation = [
     { key: 'dashboard', href: '/dashboard', icon: '📊' },
-    { key: 'websites', href: '/websites', icon: '🌐' },
-    { key: 'downloads', href: '/downloads', icon: '📥' },
-    { key: 'posts', href: '/posts', icon: '📝' },
-    { key: 'keywords', href: '/keywords', icon: '🔑' },
-    { key: 'sitemaps', href: '/sitemaps', icon: '🗺️' },
+    { key: 'seoDashboard', href: '/seo-dashboard', icon: '🎯' },
+    { key: 'spiderPool', href: '/spider-pool', icon: '🕸️' },
     { key: 'spider', href: '/spider', icon: '🕷️' },
+    { key: 'websites', href: '/websites', icon: '🌐' },
+    { key: 'posts', href: '/posts', icon: '📝' },
+    { key: 'downloads', href: '/downloads', icon: '📥' },
+    { key: 'sitemaps', href: '/sitemaps', icon: '🗺️' },
+    { key: 'aiTools', href: '/ai-seo-tools', icon: '🤖' },
   ]
 
   const adminOnlyNavigation = [
