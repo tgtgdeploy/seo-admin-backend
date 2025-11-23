@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslations } from '@/components/I18nProvider'
+import { SpiderPoolDomains } from './components/SpiderPoolDomains'
 
 interface SpiderPoolStats {
   overview: {
@@ -76,7 +77,7 @@ async function generateSpiderPool(initSources: boolean = false): Promise<void> {
 export default function SpiderPoolPage() {
   const t = useTranslations()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<'overview' | 'sources'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'domains' | 'sources'>('overview')
 
   const { data: stats, isLoading: isLoadingStats } = useQuery({
     queryKey: ['spider-pool-stats'],
@@ -132,6 +133,16 @@ export default function SpiderPoolPage() {
             } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
           >
             📊 概览统计
+          </button>
+          <button
+            onClick={() => setActiveTab('domains')}
+            className={`${
+              activeTab === 'domains'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+          >
+            🌐 域名管理
           </button>
           <button
             onClick={() => setActiveTab('sources')}
@@ -330,6 +341,9 @@ export default function SpiderPoolPage() {
           ) : null}
         </>
       )}
+
+      {/* Domains Tab */}
+      {activeTab === 'domains' && <SpiderPoolDomains />}
 
       {/* Sources Tab */}
       {activeTab === 'sources' && (
