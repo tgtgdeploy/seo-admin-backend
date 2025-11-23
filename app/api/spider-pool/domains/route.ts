@@ -40,7 +40,7 @@ export async function GET() {
     }
 
     // 按VPS分组
-    const groupedDomains = {
+    const groupedDomains: { [key: string]: any[] } = {
       'VPS-1': [] as any[],
       'VPS-2': [] as any[],
       'VPS-3': [] as any[],
