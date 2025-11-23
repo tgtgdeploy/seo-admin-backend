@@ -1,0 +1,163 @@
+# ========================================
+# 服务器部署完整命令
+# ========================================
+# 服务器: 38.147.178.158
+# 项目: SEO Admin Backend
+# ========================================
+
+# ==========================================
+# 方式一：更新现有仓库（推荐）
+# ==========================================
+
+# 1. SSH 登录服务器
+ssh root@38.147.178.158
+
+# 2. 进入项目目录
+cd /www/wwwroot/seo-admin
+
+# 3. 拉取最新代码
+git pull origin main
+
+# 4. 运行初始化脚本
+bash scripts/deploy/server-init-setup.sh
+
+
+# ==========================================
+# 方式二：重新克隆（如果上面有问题）
+# ==========================================
+
+# 1. SSH 登录服务器
+ssh root@38.147.178.158
+
+# 2. 删除旧项目并重新克隆
+rm -rf /www/wwwroot/seo-admin
+cd /www/wwwroot
+git clone https://github.com/tgtgdeploy/seo-admin-backend.git seo-admin
+
+# 3. 进入项目
+cd seo-admin
+
+# 4. 运行初始化脚本
+bash scripts/deploy/server-init-setup.sh
+
+
+# ==========================================
+# 方式三：手动部署（不用脚本）
+# ==========================================
+
+# 1. 登录服务器
+ssh root@38.147.178.158
+
+# 2. 进入项目（如果已克隆）或克隆新的
+cd /www/wwwroot/seo-admin
+# 或
+# cd /www/wwwroot && git clone https://github.com/tgtgdeploy/seo-admin-backend.git seo-admin && cd seo-admin
+
+# 3. 拉取最新代码（如果已存在）
+git pull origin main
+
+# 4. 配置环境变量
+cp .env.example .env.local
+vim .env.local
+# 或
+nano .env.local
+
+# 填入以下内容：
+# DATABASE_URL="postgresql://postgres:bBUoi3ezVB5pRvXY@db.bsuvzqihxbgoclfvgbhx.supabase.co:5432/postgres?schema=public&pgbouncer=true&connection_limit=1"
+# DIRECT_URL="postgresql://postgres:bBUoi3ezVB5pRvXY@db.bsuvzqihxbgoclfvgbhx.supabase.co:5432/postgres"
+# NEXT_PUBLIC_SUPABASE_URL="https://bsuvzqihxbgoclfvgbhx.supabase.co"
+# NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzdXZ6cWloeGJnb2NsZnZnYmh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk5NTY0MDAsImV4cCI6MjAxNTUzMjQwMH0.placeholder"
+# NEXTAUTH_SECRET="9bBUoi3ezVB5pRvXY"
+# NEXTAUTH_URL="https://adminseohub.xyz"
+# SETTINGS_ENCRYPTION_KEY="4eF6gH8iJ0kL2mN4oP6qR8sT0uV2wX4yZ6aB8cD0eF2gH4iJ6kL8mN0oP2qR4sT6u"
+# TAVILY_API_KEY="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"
+# VERCEL_AI_GATEWAY_KEY="vck_0CdZb6EDTUbqj9ZbZzkeGllrg5YnaPJPc8cPOr5v0HBQVxmyFV4XLVnT"
+# NEXT_PUBLIC_SITE_NAME="SEO 管理后台"
+# NODE_ENV="production"
+# PORT=3100
+
+# 5. 安装 pnpm（如果未安装）
+npm install -g pnpm
+
+# 6. 安装依赖
+pnpm install
+
+# 7. 生成 Prisma Client
+cd packages/database
+pnpm db:generate
+cd ../..
+
+# 8. 构建项目
+pnpm build
+
+# 9. 安装 PM2（如果未安装）
+npm install -g pm2
+
+# 10. 启动应用
+pm2 start ecosystem.config.js
+
+# 11. 保存 PM2 配置
+pm2 save
+
+# 12. 设置开机自启
+pm2 startup
+
+# 13. 查看状态
+pm2 list
+pm2 logs seo-admin
+
+
+# ==========================================
+# 常用管理命令
+# ==========================================
+
+# 查看 PM2 状态
+pm2 list
+
+# 查看日志
+pm2 logs seo-admin
+
+# 重启应用
+pm2 restart seo-admin
+
+# 停止应用
+pm2 stop seo-admin
+
+# 删除进程
+pm2 delete seo-admin
+
+# 查看详细信息
+pm2 info seo-admin
+
+# 监控面板
+pm2 monit
+
+
+# ==========================================
+# 后续部署（代码更新后）
+# ==========================================
+
+# 在服务器上执行
+ssh root@38.147.178.158
+cd /www/wwwroot/seo-admin
+bash scripts/deploy/deploy-production.sh
+
+# 或从本地远程执行
+ssh root@38.147.178.158 'cd /www/wwwroot/seo-admin && bash scripts/deploy/deploy-production.sh'
+
+
+# ==========================================
+# 配置自动部署（宝塔 Webhook）
+# ==========================================
+
+# 1. 宝塔面板 → 网站 → 设置 → Webhook
+# 2. 添加 Webhook，脚本内容：
+
+#!/bin/bash
+cd /www/wwwroot/seo-admin
+bash scripts/deploy/webhook-deploy.sh
+
+# 3. 复制 Webhook URL
+# 4. GitHub 仓库 → Settings → Webhooks → Add webhook
+# 5. 粘贴 URL，选择 "Just the push event"
+# 6. 保存后，每次 git push 都会自动部署！
