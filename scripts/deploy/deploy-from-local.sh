@@ -7,7 +7,7 @@ set -e  # 遇到错误立即退出
 
 # 配置变量（根据实际情况修改）
 SERVER_USER="root"
-SERVER_HOST="your-server-ip"  # 修改为你的服务器 IP 或域名
+SERVER_HOST="38.147.178.158"  # 宝塔服务器 IP
 SERVER_PROJECT_PATH="/www/wwwroot/seo-admin"
 SERVER_SSH_KEY="~/.ssh/id_rsa"  # 可选：指定 SSH 密钥路径
 
