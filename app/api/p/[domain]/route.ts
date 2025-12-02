@@ -49,8 +49,8 @@ function detectBot(userAgent: string): string | null {
 // 推荐资源配置
 const RECOMMENDED_SITES = [
   { name: 'Telegram 下载', url: 'https://adminapihub.xyz', desc: 'APK下载站' },
-  { name: 'Telegram 中文', url: 'https://telegramconnects.com', desc: '中文主站' },
-  { name: 'Telegram 教程', url: 'https://telegramupdatecenter.com', desc: '使用教程' },
+  { name: 'Telegram 中文版', url: 'https://telegramservice.com', desc: '中文主站' },
+  { name: 'Telegram 工具箱', url: 'https://telegramtoolkit.com', desc: '工具主站' },
 ]
 
 // 生成首页HTML
