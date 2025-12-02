@@ -22,11 +22,19 @@ const THEME_PREFIXES: Record<string, string[]> = {
   traffic: ['流量增长', '访问提升', '用户获取'],
 }
 
-// 主站配置
+// 主站配置 (dofollow - 传递权重)
 const MAIN_SITES = [
-  { url: 'https://telegramtghub.com', name: 'Telegram Hub' },
-  { url: 'https://telegramupdatecenter.com', name: 'Telegram Update Center' },
-  { url: 'https://telegramtrendguide.com', name: 'Telegram Trend Guide' },
+  { url: 'https://telegramservice.com', name: 'Telegram中文版', desc: '官方中文主站' },
+  { url: 'https://telegramtoolkit.com', name: 'Telegram工具箱', desc: '工具主站' },
+  { url: 'https://adminapihub.xyz', name: 'Telegram下载中心', desc: 'APK下载站' },
+]
+
+// 下载页链接配置 (dofollow - 重点传递权重给下载页)
+const DOWNLOAD_PAGES = [
+  { url: 'https://telegramservice.com/download', name: 'Telegram安卓下载', platform: 'Android' },
+  { url: 'https://telegramtoolkit.com/download', name: 'Telegram iOS下载', platform: 'iOS' },
+  { url: 'https://adminapihub.xyz/download', name: 'Telegram电脑版下载', platform: 'Windows' },
+  { url: 'https://adminapihub.xyz', name: 'Telegram APK直接下载', platform: 'APK' },
 ]
 
 interface ExtractedContent {
@@ -251,9 +259,17 @@ export async function generateSpiderPoolPages(
     const title = `${themePrefix} - ${randomHeading}`
     const slug = `page-${String(i).padStart(4, '0')}`
 
-    // 生成主站链接（随机选择1个，添加nofollow）
-    const randomSite = MAIN_SITES[Math.floor(Math.random() * MAIN_SITES.length)]
-    const siteLinks = `<a href="${randomSite.url}" target="_blank" rel="nofollow">${randomSite.name}</a>`
+    // 生成主站链接（选择2-3个，dofollow传递权重）
+    const shuffledSites = shuffle(MAIN_SITES).slice(0, 2 + Math.floor(Math.random() * 2))
+    const siteLinks = shuffledSites.map(site =>
+      `<a href="${site.url}" title="${site.desc}">${site.name}</a>`
+    ).join(' | ')
+
+    // 生成下载链接（选择2-3个，dofollow传递权重给下载页）
+    const shuffledDownloads = shuffle(DOWNLOAD_PAGES).slice(0, 2 + Math.floor(Math.random() * 2))
+    const downloadLinks = shuffledDownloads.map(dl =>
+      `<a href="${dl.url}" title="${dl.name}">${dl.platform}版下载</a>`
+    ).join(' | ')
 
     // 生成HTML内容（传递页码信息用于内部链接）
     const htmlContent = generatePageHTML({
@@ -264,6 +280,7 @@ export async function generateSpiderPoolPages(
       headings: content.headings,
       domain: domainAlias.domain,
       siteLinks,
+      downloadLinks,
       pageNum: i,
       totalPages: pageCount,
     })
@@ -307,10 +324,11 @@ function generatePageHTML(params: {
   headings: string[]
   domain: string
   siteLinks: string
+  downloadLinks: string
   pageNum?: number
   totalPages?: number
 }): string {
-  const { title, description, keywords, paragraphs, headings, domain, siteLinks, pageNum = 1, totalPages = 150 } = params
+  const { title, description, keywords, paragraphs, headings, domain, siteLinks, downloadLinks, pageNum = 1, totalPages = 150 } = params
 
   // 根据域名哈希生成不同的主题颜色
   const domainHash = domain.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
@@ -489,12 +507,20 @@ function generatePageHTML(params: {
         </div>
         ` : ''}
 
+        <!-- 下载区域 - dofollow传递权重 -->
+        <div class="download-section" style="margin-top: 40px; padding: 25px; background: linear-gradient(135deg, ${theme.gradient}); border-radius: 10px; text-align: center;">
+            <h3 style="color: white; margin-bottom: 15px; font-size: 18px;">📥 立即下载 Telegram</h3>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 15px;">${downloadLinks}</p>
+        </div>
+
         <footer>
-            <p><strong>推荐资源</strong></p>
+            <p><strong>🌐 官方资源</strong></p>
             <p>${siteLinks}</p>
+            <p style="margin-top: 15px;"><strong>📱 快速下载</strong></p>
+            <p>${downloadLinks}</p>
             <p class="meta-info" style="margin-top: 15px;">
                 © ${new Date().getFullYear()} ${domain} |
-                本站内容仅供参考 |
+                Telegram中文资讯 |
                 <a href="/sitemap.xml">网站地图</a>
             </p>
         </footer>

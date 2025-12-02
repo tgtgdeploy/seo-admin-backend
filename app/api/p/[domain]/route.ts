@@ -46,11 +46,19 @@ function detectBot(userAgent: string): string | null {
   return null
 }
 
-// 推荐资源配置
-const RECOMMENDED_SITES = [
-  { name: 'Telegram 下载', url: 'https://adminapihub.xyz', desc: 'APK下载站' },
-  { name: 'Telegram 中文版', url: 'https://telegramservice.com', desc: '中文主站' },
+// 主站链接配置 (dofollow - 传递权重)
+const MAIN_SITES = [
+  { name: 'Telegram 中文版', url: 'https://telegramservice.com', desc: '官方中文主站' },
   { name: 'Telegram 工具箱', url: 'https://telegramtoolkit.com', desc: '工具主站' },
+  { name: 'Telegram 下载中心', url: 'https://adminapihub.xyz', desc: 'APK下载站' },
+]
+
+// 下载页链接配置 (dofollow - 重点传递权重给下载页)
+const DOWNLOAD_PAGES = [
+  { name: 'Telegram 安卓下载', url: 'https://telegramservice.com/download', platform: 'Android' },
+  { name: 'Telegram iOS下载', url: 'https://telegramtoolkit.com/download', platform: 'iOS' },
+  { name: 'Telegram 电脑版下载', url: 'https://adminapihub.xyz/download', platform: 'Windows' },
+  { name: 'Telegram APK直接下载', url: 'https://adminapihub.xyz', platform: 'APK' },
 ]
 
 // 生成首页HTML
@@ -60,37 +68,76 @@ function generateIndexHTML(domain: string, siteName: string, pages: any[]): stri
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${domain} - ${siteName}</title>
-    <meta name="description" content="Telegram中文资讯，提供最新的Telegram下载、使用教程和SEO优化技巧">
+    <title>${siteName} - Telegram下载 | 电报中文版官网</title>
+    <meta name="description" content="Telegram中文版下载，提供安卓APK、iOS、Windows、Mac等全平台客户端下载，最新版本免费获取">
+    <meta name="keywords" content="Telegram下载,电报下载,Telegram安卓,Telegram iOS,Telegram中文版,纸飞机下载">
+    <link rel="canonical" href="https://${domain}/">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
-        h1 { color: #0088cc; text-align: center; margin-bottom: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .card a { color: #333; text-decoration: none; font-size: 14px; }
-        .card a:hover { color: #0088cc; }
-        .main-sites { text-align: center; margin-top: 60px; padding: 30px; background: white; border-radius: 8px; }
-        .main-sites a { display: inline-block; margin: 10px; padding: 12px 24px; background: #0088cc; color: white; text-decoration: none; border-radius: 5px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; line-height: 1.6; }
+        h1 { color: #0088cc; text-align: center; margin-bottom: 20px; font-size: 2em; }
+        h2 { text-align: center; color: #666; margin-bottom: 40px; font-size: 1.2em; font-weight: normal; }
+        .download-section { background: linear-gradient(135deg, #0088cc 0%, #005580 100%); padding: 40px 30px; border-radius: 12px; margin-bottom: 40px; text-align: center; }
+        .download-section h3 { color: white; margin-bottom: 25px; font-size: 1.5em; }
+        .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; max-width: 900px; margin: 0 auto; }
+        .download-btn { display: block; padding: 16px 24px; background: white; color: #0088cc; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+        .download-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .download-btn .platform { display: block; font-size: 12px; color: #666; font-weight: normal; margin-top: 4px; }
+        .main-sites { background: white; padding: 30px; border-radius: 12px; margin-bottom: 40px; text-align: center; }
+        .main-sites h3 { color: #333; margin-bottom: 20px; }
+        .main-sites .links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .main-sites a { display: inline-block; padding: 12px 28px; background: #0088cc; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; }
         .main-sites a:hover { background: #006699; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .card a { color: #333; text-decoration: none; font-size: 15px; display: block; }
+        .card a:hover { color: #0088cc; }
+        .footer { text-align: center; margin-top: 60px; padding: 30px; color: #666; font-size: 14px; }
+        .footer a { color: #0088cc; text-decoration: none; margin: 0 10px; }
     </style>
 </head>
 <body>
-    <h1>${domain}</h1>
-    <h2 style="text-align: center; color: #666; margin-bottom: 40px;">Telegram 中文资讯中心</h2>
+    <h1>Telegram 中文下载中心</h1>
+    <h2>快速、安全、免费 - 全平台Telegram客户端下载</h2>
 
+    <!-- 下载区域 - dofollow传递权重 -->
+    <div class="download-section">
+        <h3>📥 立即下载 Telegram</h3>
+        <div class="download-grid">
+            ${DOWNLOAD_PAGES.map(dl => `
+            <a href="${dl.url}" class="download-btn" title="${dl.name}">
+                ${dl.name}
+                <span class="platform">${dl.platform}版</span>
+            </a>
+            `).join('')}
+        </div>
+    </div>
+
+    <!-- 主站链接 - dofollow传递权重 -->
+    <div class="main-sites">
+        <h3>🌐 Telegram 官方资源</h3>
+        <div class="links">
+            ${MAIN_SITES.map(site => `<a href="${site.url}" title="${site.desc}">${site.name}</a>`).join('')}
+        </div>
+    </div>
+
+    <!-- 文章列表 -->
+    <h3 style="color: #333; margin-bottom: 20px;">📚 最新资讯</h3>
     <div class="grid">
         ${pages.map(page => `
         <div class="card">
             <a href="/${page.slug}.html">
-                📄 ${page.title}
+                ${page.title}
             </a>
         </div>
         `).join('')}
     </div>
 
-    <div class="main-sites">
-        <h3>推荐资源</h3>
-        ${RECOMMENDED_SITES.map(site => `<a href="${site.url}" target="_blank" rel="nofollow">${site.name}</a>`).join('')}
+    <div class="footer">
+        <p>Telegram中文资讯中心 | 提供最新下载和使用教程</p>
+        <p>
+            ${MAIN_SITES.map(site => `<a href="${site.url}">${site.name}</a>`).join('')}
+        </p>
     </div>
 </body>
 </html>`
