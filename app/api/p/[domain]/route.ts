@@ -61,6 +61,63 @@ const DOWNLOAD_PAGES = [
   { name: 'Telegram APK直接下载', url: 'https://adminapihub.xyz', platform: 'APK' },
 ]
 
+// 生成内页HTML（包含下载链接）
+function generatePageHTML(domain: string, page: any): string {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${page.title || 'Telegram资讯'}</title>
+    <meta name="description" content="${page.description || 'Telegram中文版下载和使用教程'}">
+    <meta name="keywords" content="${(page.keywords || []).join(',')}">
+    <link rel="canonical" href="https://${domain}/${page.slug}.html">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; line-height: 1.8; color: #333; }
+        .content { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        h1 { color: #0088cc; margin-bottom: 20px; }
+        p { margin-bottom: 16px; }
+        .download-section { margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #0088cc 0%, #005580 100%); border-radius: 10px; text-align: center; }
+        .download-section h3 { color: white; margin-bottom: 20px; font-size: 1.3em; }
+        .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .download-btn { display: block; padding: 14px 20px; background: white; color: #0088cc; text-decoration: none; border-radius: 8px; font-weight: bold; transition: transform 0.2s; }
+        .download-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .download-btn .platform { display: block; font-size: 12px; color: #666; font-weight: normal; margin-top: 4px; }
+        .footer { margin-top: 40px; padding: 25px 0; border-top: 2px solid #eee; text-align: center; color: #666; font-size: 14px; }
+        .footer a { color: #0088cc; text-decoration: none; margin: 0 10px; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        ${page.content}
+
+        <!-- 下载区域 - dofollow传递权重 -->
+        <div class="download-section">
+            <h3>立即下载 Telegram</h3>
+            <div class="download-grid">
+                ${DOWNLOAD_PAGES.map(dl => `
+                <a href="${dl.url}" class="download-btn" title="${dl.name}">
+                    ${dl.name}
+                    <span class="platform">${dl.platform}版</span>
+                </a>
+                `).join('')}
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Telegram中文资讯中心 | 提供最新下载和使用教程</p>
+        <p>
+            ${MAIN_SITES.map(site => `<a href="${site.url}" title="${site.desc}">${site.name}</a>`).join('')}
+        </p>
+        <p style="margin-top: 10px;">
+            ${DOWNLOAD_PAGES.map(dl => `<a href="${dl.url}">${dl.platform}版下载</a>`).join(' | ')}
+        </p>
+    </div>
+</body>
+</html>`
+}
+
 // 生成首页HTML
 function generateIndexHTML(domain: string, siteName: string, pages: any[]): string {
   return `<!DOCTYPE html>
@@ -300,8 +357,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       })
     ])
 
+    // 生成完整的HTML页面（包含下载链接）
+    const fullHTML = generatePageHTML(domain, page)
+
     // 返回HTML内容
-    return new NextResponse(page.content, {
+    return new NextResponse(fullHTML, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'public, max-age=3600',
