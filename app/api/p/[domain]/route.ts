@@ -46,6 +46,13 @@ function detectBot(userAgent: string): string | null {
   return null
 }
 
+// 推荐资源配置
+const RECOMMENDED_SITES = [
+  { name: 'Telegram 下载', url: 'https://adminapihub.xyz', desc: 'APK下载站' },
+  { name: 'Telegram 中文', url: 'https://telegramconnects.com', desc: '中文主站' },
+  { name: 'Telegram 教程', url: 'https://telegramupdatecenter.com', desc: '使用教程' },
+]
+
 // 生成首页HTML
 function generateIndexHTML(domain: string, siteName: string, pages: any[]): string {
   return `<!DOCTYPE html>
@@ -64,6 +71,7 @@ function generateIndexHTML(domain: string, siteName: string, pages: any[]): stri
         .card a:hover { color: #0088cc; }
         .main-sites { text-align: center; margin-top: 60px; padding: 30px; background: white; border-radius: 8px; }
         .main-sites a { display: inline-block; margin: 10px; padding: 12px 24px; background: #0088cc; color: white; text-decoration: none; border-radius: 5px; }
+        .main-sites a:hover { background: #006699; }
     </style>
 </head>
 <body>
@@ -82,7 +90,7 @@ function generateIndexHTML(domain: string, siteName: string, pages: any[]): stri
 
     <div class="main-sites">
         <h3>推荐资源</h3>
-        <a href="https://telegramtghub.com" target="_blank" rel="nofollow">Telegram Hub</a>
+        ${RECOMMENDED_SITES.map(site => `<a href="${site.url}" target="_blank" rel="nofollow">${site.name}</a>`).join('')}
     </div>
 </body>
 </html>`
