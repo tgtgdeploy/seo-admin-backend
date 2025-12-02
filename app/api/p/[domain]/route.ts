@@ -201,14 +201,14 @@ function generateIndexHTML(domain: string, siteName: string, pages: any[]): stri
 }
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     domain: string
-  }
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const domain = params.domain
+    const { domain } = await params
     const searchParams = request.nextUrl.searchParams
     let slug = searchParams.get('slug') || 'index'
     const type = searchParams.get('type')
